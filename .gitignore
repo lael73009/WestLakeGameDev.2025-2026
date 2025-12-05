@@ -1,0 +1,59 @@
+# ========== UNITY ==========
+
+# Ignore Unity generated folders
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+MemoryCaptures/
+UserSettings/
+ProjectSettings/Packages/com.unity.package-manager-ui/Editor.log
+
+# Ignore the Asset Store tools folder
+AssetStoreTools*
+
+# Ignore auto-generated Android/iOS files
+.gradle/
+*.apk
+*.aab
+*.ipa
+*.xcworkspace/
+*.xcuserdata/
+*.xcuserstate
+*.xcodeproj/project.xcworkspace/
+*.xcodeproj/xcuserdata/
+
+# Ignore Visual Studio generated files
+*.csproj
+*.sln
+*.suo
+*.tmp
+*.pdb
+*.user
+*.userprefs
+*.unityproj
+*.dll
+*.mdb
+
+# Crash reports
+sysinfo.txt
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# ========== OS FILES ==========
+
+# macOS
+.DS_Store
+*.DS_Store
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# Linux
+*~
+
