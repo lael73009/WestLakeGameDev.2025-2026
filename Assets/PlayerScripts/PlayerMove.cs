@@ -23,7 +23,7 @@ public class Move : MonoBehaviour
     }
 
     private void HandleInputs() {
-
+        //Move based off arrow and WASD keys
         input.x = Input.GetAxisRaw("Horizontal");
         input.y = Input.GetAxisRaw("Vertical");
 
