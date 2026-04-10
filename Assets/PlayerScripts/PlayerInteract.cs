@@ -1,4 +1,9 @@
+using System;
+using System.Linq;
+using System.Runtime.InteropServices.WindowsRuntime;
+using NUnit.Framework.Constraints;
 using Unity.Mathematics;
+using UnityEditor.ShaderGraph.Internal;
 using UnityEngine;
 
 public class PlayerInteract : MonoBehaviour
@@ -6,6 +11,7 @@ public class PlayerInteract : MonoBehaviour
     private Rigidbody2D rb;
     private float pickUpRadius = 1.0f;
     private interactable heldItem;
+    private GameObject[] inventory;
 
     // Do something with this at some point... maybe when tilemap is more complete
     public LayerMask detectionLayer;
@@ -13,14 +19,18 @@ public class PlayerInteract : MonoBehaviour
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
+        inventory = new GameObject[10];
     }
 
     void Update()
     {
-        Collider2D detectedObject = DetectObject();
-        if (Input.GetKeyDown(KeyCode.E) && detectedObject)
+        GameObject detectedObject = DetectClosestObject()?.gameObject;
+        if (Input.GetKeyDown(KeyCode.E) && detectedObject && detectedObject)
         {
-            Debug.Log("Interacted" + detectedObject.getColor());
+            Debug.Log("Interacted");
+            inventory[FindFirstFreeInventorySpot()] = detectedObject;
+            if (inventory != null) { Debug.Log(arrayToString(inventory)); }
+            detectedObject.SetActive(false);
         }
     }
 
@@ -34,25 +44,21 @@ public class PlayerInteract : MonoBehaviour
         return Physics2D.OverlapCircle(rb.position, pickUpRadius, detectionLayer);
     }
 
-    private void onDrawGizmosSelected()
+    private Collider2D DetectClosestObject()
     {
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawSphere(rb.position, pickUpRadius);
-    }
+        //Debug.Log("Detecting...");
 
-    /*void FindClosestInteractable()
-    {
         // Get all colliders in range
-        Collider[] hitColliders = Physics.OverlapSphere(transform.position, pickUpRadius);
+        Collider2D[] hitColliders = Physics2D.OverlapCircleAll(rb.position, pickUpRadius, detectionLayer);
         
         float minDistanceSqr = float.MaxValue;
-        closestInteractable = null;
+        Collider2D closestObject = null;
 
         foreach (var hitCollider in hitColliders)
         {
+            //Debug.Log("Still detecting...");
             // Try to get the IInteractable component
-            IInteractable interactable = hitCollider.GetComponent<IInteractable>();
-            if (interactable != null)
+            if (hitCollider)
             {
                 // Calculate distance using sqrMagnitude for performance
                 float distanceSqr = (hitCollider.transform.position - transform.position).sqrMagnitude;
@@ -60,9 +66,39 @@ public class PlayerInteract : MonoBehaviour
                 if (distanceSqr < minDistanceSqr)
                 {
                     minDistanceSqr = distanceSqr;
-                    closestInteractable = interactable;
+                    closestObject = hitCollider;
                 }
+                //Debug.Log("Detected!");
             }
         }
-    }*/    
+
+        return closestObject;
+    }
+
+    private int FindFirstFreeInventorySpot()
+    {
+        int index = -1;
+        for (int i=0; i<inventory.Length; i++)
+        {
+            if (inventory[i] == null)
+            {
+                index = i;
+                break;
+            }
+        }
+
+        return index;
+    }
+
+    private string arrayToString(GameObject[] array)
+    {
+        string output = "";
+        foreach (var item in array) {
+            if (item) {
+                output += item.ToString() + ", ";
+            }
+        }
+
+        return output;
+    }
 }
