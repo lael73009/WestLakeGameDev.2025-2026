@@ -1,7 +1,9 @@
+using System;
 using UnityEngine;
 
 public class PickupInteract : MonoBehaviour
 {
+    public string color;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -12,5 +14,10 @@ public class PickupInteract : MonoBehaviour
     void Update()
     {
         
+    }
+
+    public string getColor()
+    {
+        return color;
     }
 }

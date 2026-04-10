@@ -17,9 +17,10 @@ public class PlayerInteract : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.E) && DetectObject())
+        Collider2D detectedObject = DetectObject();
+        if (Input.GetKeyDown(KeyCode.E) && detectedObject)
         {
-            Debug.Log("Interacted");
+            Debug.Log("Interacted" + detectedObject.getColor());
         }
     }
 
@@ -28,7 +29,7 @@ public class PlayerInteract : MonoBehaviour
         interactable.Interact();
     }*/
 
-    bool DetectObject()
+    Collider2D DetectObject()
     {
         return Physics2D.OverlapCircle(rb.position, pickUpRadius, detectionLayer);
     }
