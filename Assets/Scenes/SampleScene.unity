@@ -130,10 +130,10 @@ GameObject:
   - component: {fileID: 118514348}
   - component: {fileID: 118514346}
   - component: {fileID: 118514344}
-  - component: {fileID: 118514350}
   - component: {fileID: 118514345}
   - component: {fileID: 118514349}
   - component: {fileID: 118514351}
+  - component: {fileID: 118514352}
   m_Layer: 9
   m_Name: Player
   m_TagString: Player
@@ -248,7 +248,7 @@ Transform:
   m_GameObject: {fileID: 118514343}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -5.06, y: -1.01, z: 0}
+  m_LocalPosition: {x: -4.42, y: -1.01, z: 0}
   m_LocalScale: {x: 2, y: 2, z: 2}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -267,7 +267,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Health
   maxHealth: 5
---- !u!61 &118514350
+--- !u!114 &118514351
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 118514343}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bb554843e1f4e8edba21b053ae9645fb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerInteract
+  detectionLayer:
+    serializedVersion: 2
+    m_Bits: 128
+--- !u!61 &118514352
 BoxCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -297,7 +312,7 @@ BoxCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 1
+  m_IsTrigger: 0
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
@@ -313,21 +328,6 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 0.32, y: 0.64}
   m_EdgeRadius: 0
---- !u!114 &118514351
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 118514343}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bb554843e1f4e8edba21b053ae9645fb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerInteract
-  detectionLayer:
-    serializedVersion: 2
-    m_Bits: 128
 --- !u!1 &210884244
 GameObject:
   m_ObjectHideFlags: 0
@@ -479,6 +479,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 67b39a38d4be847559e62ef3e56c3981, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NPCInteractable
+  choices: []
 --- !u!50 &210884249
 Rigidbody2D:
   serializedVersion: 5

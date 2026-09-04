@@ -8,7 +8,7 @@ public class Health : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        //Reset health
+        // Reset health
         health = maxHealth;
     }
 
@@ -20,11 +20,11 @@ public class Health : MonoBehaviour
 
     public void TakeDamage(int damage)
     {
-        print("Damage Taken");
-        //Lose health
+        // Lose health
         health -= damage;
 
-        //Die... temporary for testing
+        // Die
+        // TO DO: MAKE DEATH RESET
         if (health <= 0)
         {
             Destroy(gameObject);

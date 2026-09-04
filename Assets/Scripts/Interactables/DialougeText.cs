@@ -1,24 +1,27 @@
 using UnityEngine;
 using TMPro;
 using System.Collections;
-using System;
-using NUnit.Framework.Interfaces;
-
-public class Dialogue : MonoBehaviour
+public class DialogueText : MonoBehaviour
 {
-
+    // Display
     public TextMeshProUGUI textComponent;
 
     private string[] script;
     private float textSpeed = 0.05f;
     private int index; 
+    public bool isWaiting = true;
 
     // Update is called once per frame
     void Update()
     {        
         if (Input.GetMouseButtonDown(0))
         {
-            // Move on to next line if player is clicking
+            // Ensure script exists
+            if (script == null)
+            {
+                return;
+            }
+            Debug.Log("[Setting Text] " + this.GetHashCode() + " " + (textComponent == null) + " [" + index + "] " + script[index]);
             if (textComponent.text == script[index])
             {
                 NextLine();
@@ -39,10 +42,34 @@ public class Dialogue : MonoBehaviour
         script = newScript;
     }
 
+    public void SetText(string text)
+    {
+        // Set a specific text for certian instance
+        textComponent.text = text;
+    }
+
     public void SetTextComponent(TextMeshProUGUI text)
     {
+        // Chamge text
         textComponent = text;
         textComponent.text = string.Empty;
+    }
+
+    public int GetIndex()
+    {
+        // Give index
+        return index;
+    }
+
+    public string GetCurrentText()
+    {
+        // Give current displayed text
+        return textComponent.text;
+    }
+
+    public string[] GetScript()
+    {
+        return script;
     }
 
     public void StartDialogue()
@@ -59,6 +86,7 @@ public class Dialogue : MonoBehaviour
     IEnumerator TypeLine()
     {
         // Type line by each character
+        Debug.Log("Typing : " + script[index]);
         foreach (char c in script[index].ToCharArray())
         {
             textComponent.text += c;
@@ -66,7 +94,7 @@ public class Dialogue : MonoBehaviour
         }
     }
 
-    void NextLine ()
+    void NextLine()
     {
         // Reset to move to the next line
         if (index < script.Length - 1)
@@ -75,11 +103,15 @@ public class Dialogue : MonoBehaviour
             textComponent.text = string.Empty;
             StartCoroutine(TypeLine());
         }
+        else if (isWaiting)
+        {
+            Debug.Log("Waiting...");
+        }
         // Otherwise, finish and reset
         else
         {
             gameObject.SetActive(false);
-            DialogueManager.Instance.EndDialogue();
+            DialogueController.Instance.EndDialogue();
 
             textComponent.text = string.Empty;
             script = null;

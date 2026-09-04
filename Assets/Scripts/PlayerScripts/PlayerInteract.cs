@@ -6,6 +6,7 @@ using Unity.Mathematics;
 using UnityEditor.ShaderGraph.Internal;
 using UnityEngine;
 
+// No onlger used
 public class PlayerInteract : MonoBehaviour
 {
     private Rigidbody2D rb;
@@ -13,7 +14,7 @@ public class PlayerInteract : MonoBehaviour
     private interactable heldItem;
     private GameObject[] inventory;
 
-    // Do something with this at some point... maybe when tilemap is more complete
+    // TO DO: MAKE SPECIFIC LAYER
     public LayerMask detectionLayer;
 
     void Awake()
@@ -24,6 +25,7 @@ public class PlayerInteract : MonoBehaviour
 
     void Update()
     {
+        // Find object, iteract if E pressed
         GameObject detectedObject = DetectClosestObject()?.gameObject;
         if (Input.GetKeyDown(KeyCode.E) && detectedObject && detectedObject)
         {
@@ -77,6 +79,7 @@ public class PlayerInteract : MonoBehaviour
 
     private int FindFirstFreeInventorySpot()
     {
+        // Loop through index to find a free spot
         int index = -1;
         for (int i=0; i<inventory.Length; i++)
         {
@@ -92,6 +95,7 @@ public class PlayerInteract : MonoBehaviour
 
     private string arrayToString(GameObject[] array)
     {
+        // Print array for debyg purposes
         string output = "";
         foreach (var item in array) {
             if (item) {
