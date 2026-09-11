@@ -46,6 +46,11 @@ public class DialogueChoices : MonoBehaviour
         textFont = font;
     }
 
+    public (string, int)[] GetChoices()
+    {
+        return choices;
+    }
+
     public void DisplayChoices()
     {
         // Clear container 
@@ -61,7 +66,7 @@ public class DialogueChoices : MonoBehaviour
         }
 
         choiceContainer.SetActive(true);
-        LayoutRebuilder.ForceRebuildLayoutImmediate(choiceContainer.GetComponent<RectTransform>());
+        //LayoutRebuilder.ForceRebuildLayoutImmediate(choiceContainer.GetComponent<RectTransform>());
     }
 
     private void CreateChoiceButton(string choiceText, int choiceIndex)
@@ -83,7 +88,7 @@ public class DialogueChoices : MonoBehaviour
 
         // Invisible Image used for raycasting/click detection
         Image image = buttonObject.AddComponent<Image>();
-        image.color = Color.red;
+        image.color = Color.clear;
         image.raycastTarget = true;
 
         // Choice text
@@ -113,19 +118,14 @@ public class DialogueChoices : MonoBehaviour
         layoutElement.minHeight = 30f;
 
         // Store the index locally so the lambda uses the correct choice
-        int index = choiceIndex;
-
         button.onClick.AddListener(() =>
         {
-            Debug.Log("WTF");
             ChooseDialogue(choiceIndex);
         });
     }
 
     private void ChooseDialogue(int choiceIndex)
     {
-        HideChoices();
-        Debug.Log("Routing to branch" + choiceIndex);
         OnDialogueChoiceSelected?.Invoke(choiceIndex);
     }
 

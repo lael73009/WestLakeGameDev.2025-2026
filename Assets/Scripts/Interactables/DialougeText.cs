@@ -11,10 +11,16 @@ public class DialogueText : MonoBehaviour
     private string[] script;
     private float textSpeed = 0.05f;
     private int index; 
+    public bool choicesAreActive = false;
 
     // Update is called once per frame
     void Update()
     {        
+        if (choicesAreActive)
+        {
+            return;
+        }
+        
         if (Input.GetMouseButtonDown(0))
         {
             // Ensure script exists
@@ -75,6 +81,8 @@ public class DialogueText : MonoBehaviour
 
     public void StartDialogue()
     {
+        Debug.Log("5. DialogueText.StartDialogue()");
+
         // Reset text
         gameObject.SetActive(true);
         textComponent.text = string.Empty;
@@ -116,9 +124,8 @@ public class DialogueText : MonoBehaviour
     public void EndDialogueText()
     {
         StopAllCoroutines();
-        gameObject.SetActive(false);
         textComponent.text = string.Empty;
-        
+
         script = null;
         index = 0;
     }

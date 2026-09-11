@@ -17,6 +17,8 @@ public class Dialogue
         text = newText;
         choice = newChoice;
 
+        Debug.Log("SUBSCRIBING TO CHOICE EVENT");
+
         choice.OnDialogueChoiceSelected += SelectChoice;
         text.OnDialogueTextFinished += DisplayChoices;
     }
@@ -63,28 +65,42 @@ public class Dialogue
 
     public Task<int> ChooseNextDialogue()
     {
-        Debug.Log("Waiting for player choice...");
         playerChoice = new TaskCompletionSource<int>();
 
+        Debug.Log("playerChoice is null: " + (playerChoice == null));
         return playerChoice.Task;
     }
 
     public void SelectChoice(int nextDialogue)
     {
-        Debug.Log("Player chose branch " + nextDialogue);
+        Debug.Log("1. SelectChoice: " + nextDialogue);
 
+        if (playerChoice == null)
+        {
+            Debug.LogError("ERROR: playerChoice is null when a choice was selected!");
+            return;
+        }
+
+        text.choicesAreActive = false;
         text.EndDialogueText();
         choice.HideChoices();
-        if (playerChoice != null)
-        {
-            playerChoice.TrySetResult(nextDialogue);
-            playerChoice = null;
-        }
+
+        TaskCompletionSource<int> currentChoice = playerChoice;
+        playerChoice = null;
+        currentChoice.TrySetResult(nextDialogue);
     }
 
     public void DisplayChoices()
     {
-        Debug.Log("Displaying choices");
+        Debug.Log("=== DISPLAY CHOICES ===");
+        Debug.Log("Current choices:");
+
+        foreach (var c in choice.GetChoices())
+        {
+            Debug.Log("Choice: " + c.Item1 + " -> " + c.Item2);
+        }
+
+        text.choicesAreActive = true;
         choice.DisplayChoices();
     }
 }

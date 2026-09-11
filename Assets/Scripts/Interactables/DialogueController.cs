@@ -26,14 +26,6 @@ public class DialogueController : MonoBehaviour
     {
         Instance = this;
         
-        if (FindFirstObjectByType<UnityEngine.EventSystems.EventSystem>() == null)
-        {
-            GameObject eventSystemObject = new GameObject("EventSystem");
-
-            eventSystemObject.AddComponent<UnityEngine.EventSystems.EventSystem>();
-            eventSystemObject.AddComponent<UnityEngine.EventSystems.StandaloneInputModule>();
-        }
-
         // Create canvas
         GameObject canvasObject = new GameObject("DialogueCanvas");
         Canvas canvas = canvasObject.AddComponent<Canvas>();
@@ -145,13 +137,29 @@ public class DialogueController : MonoBehaviour
     {
         int current = 0;
         int timeout = 0;
-        while (current >= 0 && current < data.script.Length) {
-            dialogue.SetScript(data.script[current]);
-            dialogue.SetChoices(data.choices[current]);
+        IsDialogueActive = true;
 
-            Task<int> choiceTask = dialogue.ChooseNextDialogue();
-            dialogue.StartDialogue();
-            int nextDialogue = await choiceTask;
+        while (current >= 0 && current < data.script.Length) {
+            Debug.Log("3. Starting branch: " + current);
+            dialogue.SetScript(data.script[current]);
+
+            // TODO: THIS METHOD SHOULD INSTEAD HANDLE THEM AS TOUPLETS
+            //if (current < data.choices.Length)
+            //{
+                dialogue.SetChoices(data.choices[current]);
+                Task<int> choiceTask = dialogue.ChooseNextDialogue();
+                dialogue.StartDialogue();
+                current = await choiceTask;
+
+                Debug.Log("4. Controller received branch: " + current);
+                
+            //}
+            //else
+            //{
+            //    dialogue.StartDialogue();
+            //    break;
+            //}
+
 
             timeout++;
             if (timeout > 5000) 
@@ -170,7 +178,8 @@ public class DialogueController : MonoBehaviour
                                 "Not much else though... Anyhoo, how are you?"},
                                 new string[] {"Great! It's a nice outside, isn't it---you should go!",
                                 "Aw, darn. Well, tomorrow's a new day! Maybe get some time outside, hang out with friends..."}};
-        (string, int)[][] choices = new (string, int)[][] {new (string, int)[] {("Good", 0), ("Bad", 1)}};
+        (string, int)[][] choices = new (string, int)[][] {new (string, int)[] {("Good", 0), ("Bad", 1)}, 
+                                                            new (string, int)[]{("Goodbye", -1)}};
         DialogueData testDialogueData = new DialogueData(script, choices);
     
 
@@ -181,6 +190,7 @@ public class DialogueController : MonoBehaviour
     {
         // Allow other objects to read diaogue
         IsDialogueActive = false;
+        dialogueContainer.SetActive(false);
     }
 
     /*

@@ -6,6 +6,7 @@ using System;
 
 public class DialogueData
 {
+    // TODO: MAKE THE SCRIPT MATRIX AND CHOICES MATRIX AN ARRAY TO ALLOY FOR DIALOGUE OPTIONS WITH NO CHOICES
     public string[][] script;
 
     // First row is the choice text, second is the script index that choice will go to 
@@ -41,7 +42,7 @@ public class DialogueData
 
     public string[] GetChoicesTextsForRow(int index)
     {
-        string[] texts = new string[choices.Length];
+        string[] texts = new string[choices[index].Length];
 
         for(int i=0; i<choices.Length; i++)
         {
@@ -53,7 +54,7 @@ public class DialogueData
 
     public int[] GetChoicesStartIdexesForRow(int index)
     {
-        int[] indexes = new int[choices.Length];
+        int[] indexes = new int[choices[index].Length];
 
         for(int i=0; i<choices.Length; i++)
         {
