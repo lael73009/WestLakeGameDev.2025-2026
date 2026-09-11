@@ -3,13 +3,14 @@ using TMPro;
 using System.Collections;
 public class DialogueText : MonoBehaviour
 {
+    public System.Action OnDialogueTextFinished;
+
     // Display
     public TextMeshProUGUI textComponent;
 
     private string[] script;
     private float textSpeed = 0.05f;
     private int index; 
-    public bool isWaiting = true;
 
     // Update is called once per frame
     void Update()
@@ -21,7 +22,7 @@ public class DialogueText : MonoBehaviour
             {
                 return;
             }
-            Debug.Log("[Setting Text] " + this.GetHashCode() + " " + (textComponent == null) + " [" + index + "] " + script[index]);
+            //Debug.Log("[Setting Text] " + this.GetHashCode() + " " + (textComponent == null) + " [" + index + "] " + script[index]);
             if (textComponent.text == script[index])
             {
                 NextLine();
@@ -86,7 +87,7 @@ public class DialogueText : MonoBehaviour
     IEnumerator TypeLine()
     {
         // Type line by each character
-        Debug.Log("Typing : " + script[index]);
+        //Debug.Log("Typing : " + script[index]);
         foreach (char c in script[index].ToCharArray())
         {
             textComponent.text += c;
@@ -103,19 +104,22 @@ public class DialogueText : MonoBehaviour
             textComponent.text = string.Empty;
             StartCoroutine(TypeLine());
         }
-        else if (isWaiting)
-        {
-            Debug.Log("Waiting...");
-        }
         // Otherwise, finish and reset
         else
         {
-            gameObject.SetActive(false);
-            DialogueController.Instance.EndDialogue();
-
-            textComponent.text = string.Empty;
-            script = null;
-            index = 0;
+            //gameObject.SetActive(false);
+            //DialogueController.Instance.EndDialogue();
+            OnDialogueTextFinished?.Invoke();
         }
+    }
+
+    public void EndDialogueText()
+    {
+        StopAllCoroutines();
+        gameObject.SetActive(false);
+        textComponent.text = string.Empty;
+        
+        script = null;
+        index = 0;
     }
 }

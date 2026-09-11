@@ -1,6 +1,8 @@
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
+using System.Collections;
+using System.Threading.Tasks;
 
 public class DialogueController : MonoBehaviour
 {
@@ -23,6 +25,14 @@ public class DialogueController : MonoBehaviour
     void Awake()
     {
         Instance = this;
+        
+        if (FindFirstObjectByType<UnityEngine.EventSystems.EventSystem>() == null)
+        {
+            GameObject eventSystemObject = new GameObject("EventSystem");
+
+            eventSystemObject.AddComponent<UnityEngine.EventSystems.EventSystem>();
+            eventSystemObject.AddComponent<UnityEngine.EventSystems.StandaloneInputModule>();
+        }
 
         // Create canvas
         GameObject canvasObject = new GameObject("DialogueCanvas");
@@ -42,7 +52,7 @@ public class DialogueController : MonoBehaviour
         dialogueContainer.SetActive(false);
 
         // Create choices 
-        DialogueChoice dialogueChoice = dialogueContainer.AddComponent<DialogueChoice>();
+        DialogueChoices dialogueChoice = dialogueContainer.AddComponent<DialogueChoices>();
         dialogueChoice.SetChoiceContainer(dialogueChoicesObject);
         dialogueChoice.SetFont(dialogueTextObject.font);
 
@@ -59,6 +69,7 @@ public class DialogueController : MonoBehaviour
         // Set box look (color, etc)
         UnityEngine.UI.Image dialogueBox = dialogueBoxObject.AddComponent<UnityEngine.UI.Image>();
         dialogueBox.color = Color.darkMagenta;
+        dialogueBox.raycastTarget = false;
 
         // Set box location
         RectTransform boxRect = dialogueBoxObject.GetComponent<RectTransform>();
@@ -130,26 +141,36 @@ public class DialogueController : MonoBehaviour
         for (int i=0; )
     }
 */
-    public void StartDialogue(DialogueData data)
+    async void StartDialogue(DialogueData data)
     {
+        int current = 0;
+        int timeout = 0;
+        while (current >= 0 && current < data.script.Length) {
+            dialogue.SetScript(data.script[current]);
+            dialogue.SetChoices(data.choices[current]);
 
-        int currentSeq = 0; // TODO: THIS IS A CONTROLLED MEMBER VARIALBE
-        //foreach (string[] seq in data.script) {
-        dialogue.GetDialogueText().SetScript(data.script[currentSeq]);
-            //dialogue.SetDialogueChoices(data.choice);
-        //}
-        dialogue.StartDialogue();
+            Task<int> choiceTask = dialogue.ChooseNextDialogue();
+            dialogue.StartDialogue();
+            int nextDialogue = await choiceTask;
 
+            timeout++;
+            if (timeout > 5000) 
+            {
+                Debug.LogError("Error: Infinite loop occured when displaying dialogue.");
+                break; 
+            }
+        }
+
+        EndDialogue();
     }
 
     public void StartDialogueTest()
     {
         string[][] script = new string[][] {new string[] {"Hello, I am an NPC! Here to be non-playable and a character!", 
-                                "Not much else though... Anyhoo, how are you?", "EEEEEEEQQQQQ"},
+                                "Not much else though... Anyhoo, how are you?"},
                                 new string[] {"Great! It's a nice outside, isn't it---you should go!",
                                 "Aw, darn. Well, tomorrow's a new day! Maybe get some time outside, hang out with friends..."}};
-        string[][] choices = new string[][] {new string[]{"Good", "Bad"}, 
-                                            new string[]{"2", "3"}};
+        (string, int)[][] choices = new (string, int)[][] {new (string, int)[] {("Good", 0), ("Bad", 1)}};
         DialogueData testDialogueData = new DialogueData(script, choices);
     
 

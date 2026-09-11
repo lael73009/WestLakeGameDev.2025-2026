@@ -2,15 +2,16 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
 using System.Collections;
+using System;
 
 public class DialogueData
 {
     public string[][] script;
 
     // First row is the choice text, second is the script index that choice will go to 
-    public string[][] choices;
+    public (string text, int nextIndex)[][] choices;
 
-    public DialogueData(string[][] newScript, string[][] newChoices)
+    public DialogueData(string[][] newScript, (string, int)[][] newChoices)
     {
         script = newScript;
 
@@ -23,7 +24,7 @@ public class DialogueData
         script = newScript;
     }
 
-    public void SetChoices(string[][] newChoices)
+    public void SetChoices((string, int)[][] newChoices)
     {
         choices = newChoices;
     }
@@ -33,25 +34,33 @@ public class DialogueData
         return script;
     }
 
-    public string[][] GetChoices()
+    public (string, int)[][] GetChoices()
     {
         return choices;
     }
 
-    public string[] GetChoiceOptions()
+    public string[] GetChoicesTextsForRow(int index)
     {
-        return choices[0];
-    }
+        string[] texts = new string[choices.Length];
 
-    /* public int[] GetChoiceStartIdexes()
-    {
-        int[] choiceIndexes = new int[choices[1].Length];
-
-        for (int i=0; i<choices[1].Length; i++)
+        for(int i=0; i<choices.Length; i++)
         {
-            choiceIndexes[i] = int.Parse(choiceIndexes[1][i]);
+            texts[i] = choices[index][i].Item1;
         }
 
-        return choiceIndexes;
-    } */
+        return texts;
+    }
+
+    public int[] GetChoicesStartIdexesForRow(int index)
+    {
+        int[] indexes = new int[choices.Length];
+
+        for(int i=0; i<choices.Length; i++)
+        {
+            indexes[i] = choices[index][i].Item2;
+        }
+
+        return indexes;
+    }
+
 }
