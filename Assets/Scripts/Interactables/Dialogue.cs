@@ -8,18 +8,18 @@ public class Dialogue
 {
     // Text
     private DialogueText text;
+
     // Choices
-    private DialogueChoices choice;
+    private DialogueChoices choices;
     private TaskCompletionSource<int> playerChoice;
 
     public Dialogue(DialogueText newText, DialogueChoices newChoice)
     {
         text = newText;
-        choice = newChoice;
+        choices = newChoice;
 
-        Debug.Log("SUBSCRIBING TO CHOICE EVENT");
-
-        choice.OnDialogueChoiceSelected += SelectChoice;
+        // Add methods for the asyncs to call
+        choices.OnDialogueChoiceSelected += SelectChoice;
         text.OnDialogueTextFinished += DisplayChoices;
     }
 
@@ -30,12 +30,12 @@ public class Dialogue
 
     public void SetChoices((string, int)[] newChoices)
     {
-        choice.SetChoices(newChoices);
+        choices.SetChoices(newChoices);
     }
 
     public void SetChoices(string[] texts, int[] newIndexes)
     {
-        choice.SetChoices(texts, newIndexes);
+        choices.SetChoices(texts, newIndexes);
     }
 
     public void SetDialogueText(DialogueText newText)
@@ -45,7 +45,7 @@ public class Dialogue
 
     public void SetDialogueChoices(DialogueChoices newChoice)
     {
-        choice = newChoice;
+        choices = newChoice;
     }
 
     public DialogueText GetDialogueText()
@@ -55,36 +55,36 @@ public class Dialogue
 
     public DialogueChoices GetDialogueChoices()
     {
-        return choice;
+        return choices;
     }
 
     public void StartDialogue()
     {
+        // Begin text
         text.StartDialogue();
     }
 
     public Task<int> ChooseNextDialogue()
     {
+        // Assign task
         playerChoice = new TaskCompletionSource<int>();
-
-        Debug.Log("playerChoice is null: " + (playerChoice == null));
         return playerChoice.Task;
     }
 
     public void SelectChoice(int nextDialogue)
     {
-        Debug.Log("1. SelectChoice: " + nextDialogue);
-
         if (playerChoice == null)
         {
             Debug.LogError("ERROR: playerChoice is null when a choice was selected!");
             return;
         }
 
+        // Remove this dialogue's elements
         text.choicesAreActive = false;
         text.EndDialogueText();
-        choice.HideChoices();
+        choices.HideChoices();
 
+        // Spit out choice
         TaskCompletionSource<int> currentChoice = playerChoice;
         playerChoice = null;
         currentChoice.TrySetResult(nextDialogue);
@@ -92,15 +92,8 @@ public class Dialogue
 
     public void DisplayChoices()
     {
-        Debug.Log("=== DISPLAY CHOICES ===");
-        Debug.Log("Current choices:");
-
-        foreach (var c in choice.GetChoices())
-        {
-            Debug.Log("Choice: " + c.Item1 + " -> " + c.Item2);
-        }
-
+        // Show choices
         text.choicesAreActive = true;
-        choice.DisplayChoices();
+        choices.DisplayChoices();
     }
 }

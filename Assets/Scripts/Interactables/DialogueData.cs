@@ -6,62 +6,120 @@ using System;
 
 public class DialogueData
 {
-    // TODO: MAKE THE SCRIPT MATRIX AND CHOICES MATRIX AN ARRAY TO ALLOY FOR DIALOGUE OPTIONS WITH NO CHOICES
-    public string[][] script;
+    // TODO: MAKE THE SCRIPT MATRIX AND CHOICES MATRIX A TUPLET ARRAY TO ALLOW FOR DIALOGUE OPTIONS WITH NO CHOICES
+    public (string[] script, (string, int)[] choices)[] dialogueData;
 
-    // First row is the choice text, second is the script index that choice will go to 
-    public (string text, int nextIndex)[][] choices;
+    //public string[][] script;
+    //public (string text, int nextIndex)[][] choices;
+
+
+    public DialogueData((string[] script, (string, int)[] choices)[] newDialogue)
+    {
+        dialogueData = newDialogue;
+    }
 
     public DialogueData(string[][] newScript, (string, int)[][] newChoices)
     {
-        script = newScript;
-
-        // Should only have 2 rows equal in length --- TODO: ADD CHECK 
-        choices = newChoices;
-    }
-
-    public void SetScript(string[][] newScript)
-    {
-        script = newScript;
-    }
-
-    public void SetChoices((string, int)[][] newChoices)
-    {
-        choices = newChoices;
-    }
-
-    public string[][] GetScript()
-    {
-        return script;
-    }
-
-    public (string, int)[][] GetChoices()
-    {
-        return choices;
-    }
-
-    public string[] GetChoicesTextsForRow(int index)
-    {
-        string[] texts = new string[choices[index].Length];
-
-        for(int i=0; i<choices.Length; i++)
+        // Ensure correct parallel arrays
+        if (!(newScript.Length == newChoices.Length))
         {
-            texts[i] = choices[index][i].Item1;
+            Debug.LogError("Error: mismatched script and choice lengths");
+            return;
+        }
+
+        // Add each script and choice set to the dialogueData object one by one
+        dialogueData = new (string[] script, (string, int)[] choices)[newScript.Length];
+        for (int i=0; i<dialogueData.Length; i++)
+        {
+            dialogueData[i] = (newScript[i], newChoices[i]);
+        }
+    }
+
+    public void setDialogue((string[] script, (string, int)[] choices)[] newDialogue)
+    {
+        dialogueData = newDialogue;
+    }
+
+    public void SetDialogue(string[][] newScript, (string, int)[][] newChoices)
+    {
+        // Ensure correct parallel arrays
+        if (!(newScript.Length == newChoices.Length))
+        {
+            Debug.LogError("Error: mismatched script and choice lengths");
+            return;
+        }
+
+        // Add each script and choice set to the dialogueData object one by one
+        dialogueData = new (string[] script, (string, int)[] choices)[newScript.Length];
+        for (int i=0; i<dialogueData.Length; i++)
+        {
+            dialogueData[i] = (newScript[i], newChoices[i]);
+        }
+    }
+
+    public string[] GetScriptAtIndex(int row)
+    {
+        return dialogueData[row].Item1;
+    }
+
+    public (string, int)[] GetChoicesAtIndex(int row)
+    {
+        return dialogueData[row].Item2;
+    }
+
+    // WARNING: THIS METHOD HAS NOT BEEN TESTED
+    public string[] GetChoicesTextsAtIndex(int index)
+    {
+        // Loops through the all choices at that index and collects the text 
+        string[] texts = new string[dialogueData.Length];
+
+        for(int i=0; i<dialogueData.Length; i++)
+        {
+            texts[i] = dialogueData[index].Item2[i].Item1;
         }
 
         return texts;
     }
 
-    public int[] GetChoicesStartIdexesForRow(int index)
+    // WARNING: THIS METHOD HAS NOT BEEN TESTED
+    public int[] GetChoicesNextIdexesAtIndex(int index)
     {
-        int[] indexes = new int[choices[index].Length];
+        // Loops through the all choices at that index and collects the next indexes 
+        int[] indexes = new int[dialogueData.Length];
 
-        for(int i=0; i<choices.Length; i++)
+        for(int i=0; i<dialogueData.Length; i++)
         {
-            indexes[i] = choices[index][i].Item2;
+            indexes[i] = dialogueData[index].Item2[i].Item2;
         }
 
         return indexes;
     }
 
+    // WARNING: THIS METHOD HAS NOT BEEN TESTED
+    public string[][] GetAllScripts()
+    {
+        // Loops through and collects the scripts for each index
+        string[][] scripts = new string[dialogueData.Length][];
+        
+        for (int i=0; i<dialogueData.Length; i++)
+        {
+            scripts[i] = GetScriptAtIndex(i);
+        }
+
+        return scripts;
+    }
+
+    // WARNING: THIS METHOD HAS NOT BEEN TESTED
+    public (string, int)[][] GetAllChoices()
+    {
+        // Loops through and collects the choices for each index
+        (string, int)[][] choices = new (string, int)[dialogueData.Length][];
+        
+        for (int i=0; i<dialogueData.Length; i++)
+        {
+            choices[i] = GetChoicesAtIndex(i);
+        }
+
+        return choices;
+    }
 }

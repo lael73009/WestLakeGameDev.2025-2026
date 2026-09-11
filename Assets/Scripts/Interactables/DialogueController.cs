@@ -9,7 +9,6 @@ public class DialogueController : MonoBehaviour
     // Allow other objects to access the general class without a specific identifier
     public static DialogueController Instance;
     private GameObject dialogueContainer;
-
     private Dialogue dialogue;
     
     public bool IsDialogueActive = false;
@@ -44,12 +43,12 @@ public class DialogueController : MonoBehaviour
         dialogueContainer.SetActive(false);
 
         // Create choices 
-        DialogueChoices dialogueChoice = dialogueContainer.AddComponent<DialogueChoices>();
-        dialogueChoice.SetChoiceContainer(dialogueChoicesObject);
-        dialogueChoice.SetFont(dialogueTextObject.font);
+        DialogueChoices dialogueChoices = dialogueContainer.AddComponent<DialogueChoices>();
+        dialogueChoices.SetChoiceContainer(dialogueChoicesObject);
+        dialogueChoices.SetFont(dialogueTextObject.font);
 
         // Set dialogue
-        dialogue = new Dialogue(dialogueText, dialogueChoice);
+        dialogue = new Dialogue(dialogueText, dialogueChoices);
     }
 
     private GameObject CreateDialogueBox(GameObject parent)
@@ -139,20 +138,20 @@ public class DialogueController : MonoBehaviour
         int timeout = 0;
         IsDialogueActive = true;
 
-        while (current >= 0 && current < data.script.Length) {
-            Debug.Log("3. Starting branch: " + current);
-            dialogue.SetScript(data.script[current]);
+        // Loop though all dialogue, changing index based of player choice
+        while (current >= 0 && current < data.dialogueData.Length) {
+            dialogue.SetScript(data.dialogueData[current].Item1);
 
             // TODO: THIS METHOD SHOULD INSTEAD HANDLE THEM AS TOUPLETS
             //if (current < data.choices.Length)
             //{
-                dialogue.SetChoices(data.choices[current]);
+                // Make dialogue the current index in DialogueData
+                dialogue.SetChoices(data.dialogueData[current].Item2);
                 Task<int> choiceTask = dialogue.ChooseNextDialogue();
                 dialogue.StartDialogue();
-                current = await choiceTask;
 
-                Debug.Log("4. Controller received branch: " + current);
-                
+                // Make the index the next choice
+                current = await choiceTask;
             //}
             //else
             //{
@@ -161,6 +160,7 @@ public class DialogueController : MonoBehaviour
             //}
 
 
+            // Timeout to avoid infinite loops freezing Unity
             timeout++;
             if (timeout > 5000) 
             {
@@ -174,11 +174,15 @@ public class DialogueController : MonoBehaviour
 
     public void StartDialogueTest()
     {
+        // Dummy data for ease of testing
         string[][] script = new string[][] {new string[] {"Hello, I am an NPC! Here to be non-playable and a character!", 
                                 "Not much else though... Anyhoo, how are you?"},
-                                new string[] {"Great! It's a nice outside, isn't it---you should go!",
-                                "Aw, darn. Well, tomorrow's a new day! Maybe get some time outside, hang out with friends..."}};
-        (string, int)[][] choices = new (string, int)[][] {new (string, int)[] {("Good", 0), ("Bad", 1)}, 
+                                new string[] {"Great! It's a nice outside, isn't it---you should go!"},
+                                new string[] {"Oh no, the code is going to the incorrect index! Better fix that!"},
+                                new string[] {"Aw, darn. Well, tomorrow's a new day! Maybe get some time outside, hang out with friends..."}};
+        (string, int)[][] choices = new (string, int)[][] {new (string, int)[] {("Sorry, repeat that?", 0), ("Good.", 1), ("Bad.", 3)}, 
+                                                            new (string, int)[]{("Goodbye", -1)},
+                                                            new (string, int)[]{("Whoops, I'll get on it...", -1)},
                                                             new (string, int)[]{("Goodbye", -1)}};
         DialogueData testDialogueData = new DialogueData(script, choices);
     
@@ -188,21 +192,8 @@ public class DialogueController : MonoBehaviour
 
     public void EndDialogue()
     {
-        // Allow other objects to read diaogue
+        // Remove dialogue box and allow another to be created
         IsDialogueActive = false;
         dialogueContainer.SetActive(false);
     }
-
-    /*
-    public void ChooseDialogue(int nextIndex, int nextEndIndex)
-    {
-        //dialogue.ContinueFromChoice(nextIndex, nextEndIndex);
-    }
-
-    // TO DO: REMOVE, TESTING METHOD
-    public void DisplayPresetChoices()
-    {
-        DisplayChoices(new string[] { "Good", "Bad" }, new int[] { 2, 3 }, new int[] { 3, 4 });
-    }
-    */
 }

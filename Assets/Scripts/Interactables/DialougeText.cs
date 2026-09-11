@@ -3,8 +3,6 @@ using TMPro;
 using System.Collections;
 public class DialogueText : MonoBehaviour
 {
-    public System.Action OnDialogueTextFinished;
-
     // Display
     public TextMeshProUGUI textComponent;
 
@@ -13,9 +11,12 @@ public class DialogueText : MonoBehaviour
     private int index; 
     public bool choicesAreActive = false;
 
+    public System.Action OnDialogueTextFinished;
+
     // Update is called once per frame
     void Update()
-    {        
+    {   
+        // Keep text on screen while player chooses 
         if (choicesAreActive)
         {
             return;
@@ -28,7 +29,6 @@ public class DialogueText : MonoBehaviour
             {
                 return;
             }
-            //Debug.Log("[Setting Text] " + this.GetHashCode() + " " + (textComponent == null) + " [" + index + "] " + script[index]);
             if (textComponent.text == script[index])
             {
                 NextLine();
@@ -81,8 +81,6 @@ public class DialogueText : MonoBehaviour
 
     public void StartDialogue()
     {
-        Debug.Log("5. DialogueText.StartDialogue()");
-
         // Reset text
         gameObject.SetActive(true);
         textComponent.text = string.Empty;
@@ -95,7 +93,6 @@ public class DialogueText : MonoBehaviour
     IEnumerator TypeLine()
     {
         // Type line by each character
-        //Debug.Log("Typing : " + script[index]);
         foreach (char c in script[index].ToCharArray())
         {
             textComponent.text += c;
@@ -115,14 +112,13 @@ public class DialogueText : MonoBehaviour
         // Otherwise, finish and reset
         else
         {
-            //gameObject.SetActive(false);
-            //DialogueController.Instance.EndDialogue();
             OnDialogueTextFinished?.Invoke();
         }
     }
 
     public void EndDialogueText()
     {
+        // Disappear and reset
         StopAllCoroutines();
         textComponent.text = string.Empty;
 

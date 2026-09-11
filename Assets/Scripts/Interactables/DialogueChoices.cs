@@ -37,7 +37,6 @@ public class DialogueChoices : MonoBehaviour
 
     public void SetChoiceContainer(GameObject Container)
     {
-        // Set
         choiceContainer = Container;
     }
 
@@ -74,7 +73,7 @@ public class DialogueChoices : MonoBehaviour
         GameObject buttonObject = new GameObject("Choice_" + choiceIndex, typeof(RectTransform));
         buttonObject.transform.SetParent(choiceContainer.transform, false);
 
-        // Button RectTransform
+        // Create buttons
         RectTransform buttonRect = buttonObject.GetComponent<RectTransform>();
 
         buttonRect.anchorMin = new Vector2(0f, 0.5f);
@@ -83,15 +82,13 @@ public class DialogueChoices : MonoBehaviour
         buttonRect.offsetMin = Vector2.zero;
         buttonRect.offsetMax = Vector2.zero;
 
-        // Button
         Button button = buttonObject.AddComponent<Button>();
 
-        // Invisible Image used for raycasting/click detection
         Image image = buttonObject.AddComponent<Image>();
         image.color = Color.clear;
         image.raycastTarget = true;
 
-        // Choice text
+        // Create text
         GameObject textObject = new GameObject("Text");
         textObject.transform.SetParent(buttonObject.transform, false);
 
@@ -104,7 +101,7 @@ public class DialogueChoices : MonoBehaviour
         text.alignment = TextAlignmentOptions.Left;
         text.raycastTarget = false;
 
-        // Make text fill the button
+        // Format the text inside the button
         RectTransform textRect = textObject.GetComponent<RectTransform>();
 
         textRect.anchorMin = Vector2.zero;
@@ -112,12 +109,12 @@ public class DialogueChoices : MonoBehaviour
         textRect.offsetMin = Vector2.zero;
         textRect.offsetMax = Vector2.zero;
 
-        // Give the button a predictable height
+        // Format the button
         LayoutElement layoutElement = buttonObject.AddComponent<LayoutElement>();
         layoutElement.preferredHeight = 30f;
         layoutElement.minHeight = 30f;
 
-        // Store the index locally so the lambda uses the correct choice
+        // Create action for when the button is pressed
         button.onClick.AddListener(() =>
         {
             ChooseDialogue(choiceIndex);
@@ -126,12 +123,13 @@ public class DialogueChoices : MonoBehaviour
 
     private void ChooseDialogue(int choiceIndex)
     {
+        // Spit out pressed button index
         OnDialogueChoiceSelected?.Invoke(choiceIndex);
     }
 
     public void HideChoices()
     {
-        // Remove when done
+        // Disappear
         choiceContainer.SetActive(false);
     }
 }
