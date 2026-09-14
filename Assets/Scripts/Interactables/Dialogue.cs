@@ -1,3 +1,4 @@
+// TODO: 
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
@@ -61,6 +62,7 @@ public class Dialogue
     public void StartDialogue()
     {
         // Begin text
+        Debug.Log("2. Dialogue method...");
         text.StartDialogue();
     }
 

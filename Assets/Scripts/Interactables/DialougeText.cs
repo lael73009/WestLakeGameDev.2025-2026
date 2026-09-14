@@ -82,6 +82,7 @@ public class DialogueText : MonoBehaviour
     public void StartDialogue()
     {
         // Reset text
+        Debug.Log("3. Text method...");
         gameObject.SetActive(true);
         textComponent.text = string.Empty;
         index = 0;

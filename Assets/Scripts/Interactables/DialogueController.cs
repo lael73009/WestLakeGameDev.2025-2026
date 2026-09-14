@@ -142,23 +142,13 @@ public class DialogueController : MonoBehaviour
         while (current >= 0 && current < data.dialogueData.Length) {
             dialogue.SetScript(data.dialogueData[current].Item1);
 
-            // TODO: THIS METHOD SHOULD INSTEAD HANDLE THEM AS TOUPLETS
-            //if (current < data.choices.Length)
-            //{
-                // Make dialogue the current index in DialogueData
-                dialogue.SetChoices(data.dialogueData[current].Item2);
-                Task<int> choiceTask = dialogue.ChooseNextDialogue();
-                dialogue.StartDialogue();
+            // Make dialogue the current index in DialogueData
+            dialogue.SetChoices(data.dialogueData[current].Item2);
+            Task<int> choiceTask = dialogue.ChooseNextDialogue();
+            dialogue.StartDialogue();
 
-                // Make the index the next choice
-                current = await choiceTask;
-            //}
-            //else
-            //{
-            //    dialogue.StartDialogue();
-            //    break;
-            //}
-
+            // Make the index the next choice
+            current = await choiceTask;
 
             // Timeout to avoid infinite loops freezing Unity
             timeout++;
@@ -175,7 +165,18 @@ public class DialogueController : MonoBehaviour
     public void StartDialogueTest()
     {
         // Dummy data for ease of testing
-        string[][] script = new string[][] {new string[] {"Hello, I am an NPC! Here to be non-playable and a character!", 
+        (string[] script, (string, int)[] choices)[] dialogueData = new (string[], (string, int)[])[]
+        {
+            (new string[] {"Hello, I am an NPC! Here to be non-playable and a character!", "Not much else though... Anyhoo, how are you?"}, 
+            new (string, int)[] {("Sorry, repeat that?", 0), ("Good.", 1), ("Bad.", 3)}), 
+            (new string[] {"Great! It's a nice outside, isn't it---you should go!"}, 
+            new (string, int)[] {}),
+            (new string[] {"Oh no, the code is going to the incorrect index! Better fix that!"}, 
+            new (string, int)[] {}),
+            (new string[] {"Aw, darn. Well, tomorrow's a new day! Maybe get some time outside, hang out with friends..."}, 
+            new (string, int)[] {})
+        };
+        /* string[][] script = new string[][] {new string[] {"Hello, I am an NPC! Here to be non-playable and a character!", 
                                 "Not much else though... Anyhoo, how are you?"},
                                 new string[] {"Great! It's a nice outside, isn't it---you should go!"},
                                 new string[] {"Oh no, the code is going to the incorrect index! Better fix that!"},
@@ -184,7 +185,8 @@ public class DialogueController : MonoBehaviour
                                                             new (string, int)[]{("Goodbye", -1)},
                                                             new (string, int)[]{("Whoops, I'll get on it...", -1)},
                                                             new (string, int)[]{("Goodbye", -1)}};
-        DialogueData testDialogueData = new DialogueData(script, choices);
+        DialogueData testDialogueData = new DialogueData(script, choices); */
+        DialogueData testDialogueData = new DialogueData(dialogueData);
     
 
         StartDialogue(testDialogueData);

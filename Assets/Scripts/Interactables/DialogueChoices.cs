@@ -63,6 +63,11 @@ public class DialogueChoices : MonoBehaviour
         {
             CreateChoiceButton(choices[i].Item1, choices[i].Item2);
         }
+        // Skip choices if there are none
+        if (choices.Length == 0)
+        {
+            ChooseDialogue(-1);
+        }
 
         choiceContainer.SetActive(true);
         //LayoutRebuilder.ForceRebuildLayoutImmediate(choiceContainer.GetComponent<RectTransform>());

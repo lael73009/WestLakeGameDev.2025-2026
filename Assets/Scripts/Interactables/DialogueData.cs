@@ -6,12 +6,10 @@ using System;
 
 public class DialogueData
 {
-    // TODO: MAKE THE SCRIPT MATRIX AND CHOICES MATRIX A TUPLET ARRAY TO ALLOW FOR DIALOGUE OPTIONS WITH NO CHOICES
     public (string[] script, (string, int)[] choices)[] dialogueData;
 
     //public string[][] script;
     //public (string text, int nextIndex)[][] choices;
-
 
     public DialogueData((string[] script, (string, int)[] choices)[] newDialogue)
     {
