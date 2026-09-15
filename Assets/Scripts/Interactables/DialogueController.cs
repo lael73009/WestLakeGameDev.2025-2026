@@ -9,7 +9,13 @@ public class DialogueController : MonoBehaviour
     // Allow other objects to access the general class without a specific identifier
     public static DialogueController Instance;
     private GameObject dialogueContainer;
-    private Dialogue dialogue;
+
+    // Text
+    private DialogueText text;
+    // Choices
+    private DialogueChoices choices;
+
+    private TaskCompletionSource<int> playerChoice;
     
     public bool IsDialogueActive = false;
 
@@ -38,17 +44,18 @@ public class DialogueController : MonoBehaviour
         GameObject dialogueChoicesObject = CreateDialogueChoices(dialogueContainer);
 
         // Create text
-        DialogueText dialogueText = dialogueContainer.AddComponent<DialogueText>();
-        dialogueText.SetTextComponent(dialogueTextObject);
+        text = dialogueContainer.AddComponent<DialogueText>();
+        text.SetTextComponent(dialogueTextObject);
         dialogueContainer.SetActive(false);
 
         // Create choices 
-        DialogueChoices dialogueChoices = dialogueContainer.AddComponent<DialogueChoices>();
-        dialogueChoices.SetChoiceContainer(dialogueChoicesObject);
-        dialogueChoices.SetFont(dialogueTextObject.font);
-
-        // Set dialogue
-        dialogue = new Dialogue(dialogueText, dialogueChoices);
+        choices = dialogueContainer.AddComponent<DialogueChoices>();
+        choices.SetChoiceContainer(dialogueChoicesObject);
+        choices.SetFont(dialogueTextObject.font);
+        
+        // Add methods for the asyncs to call
+        choices.OnDialogueChoiceSelected += SelectChoice;
+        text.OnDialogueTextFinished += DisplayChoices;
     }
 
     private GameObject CreateDialogueBox(GameObject parent)
@@ -140,12 +147,12 @@ public class DialogueController : MonoBehaviour
 
         // Loop though all dialogue, changing index based of player choice
         while (current >= 0 && current < data.dialogueData.Length) {
-            dialogue.SetScript(data.dialogueData[current].Item1);
+            text.SetScript(data.dialogueData[current].Item1);
 
             // Make dialogue the current index in DialogueData
-            dialogue.SetChoices(data.dialogueData[current].Item2);
-            Task<int> choiceTask = dialogue.ChooseNextDialogue();
-            dialogue.StartDialogue();
+            choices.SetChoices(data.dialogueData[current].Item2);
+            Task<int> choiceTask = ChooseNextDialogue();
+            text.StartDialogue();
 
             // Make the index the next choice
             current = await choiceTask;
@@ -191,6 +198,41 @@ public class DialogueController : MonoBehaviour
 
         StartDialogue(testDialogueData);
     }
+
+    public Task<int> ChooseNextDialogue()
+    {
+        // Assign task
+        playerChoice = new TaskCompletionSource<int>();
+        return playerChoice.Task;
+    }
+
+    public void SelectChoice(int nextDialogue)
+    {
+        // Protect against null errors
+        if (playerChoice == null)
+        {
+            Debug.LogError("ERROR: playerChoice is null when a choice was selected!");
+            return;
+        }
+
+        // Remove this dialogue's elements
+        text.choicesAreActive = false;
+        text.EndDialogueText();
+        choices.HideChoices();
+
+        // Spit out choice
+        TaskCompletionSource<int> currentChoice = playerChoice;
+        playerChoice = null;
+        currentChoice.TrySetResult(nextDialogue);
+    }
+
+    public void DisplayChoices()
+    {
+        // Show choices
+        text.choicesAreActive = true;
+        choices.DisplayChoices();
+    }
+
 
     public void EndDialogue()
     {

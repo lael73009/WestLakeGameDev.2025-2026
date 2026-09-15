@@ -1,4 +1,4 @@
-// TODO: 
+// TODO: MERGE WITH DIALOGUECONTROLLER CLASS
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
