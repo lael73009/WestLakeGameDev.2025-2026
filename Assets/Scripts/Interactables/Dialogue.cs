@@ -1,4 +1,4 @@
-// TODO: MERGE WITH DIALOGUECONTROLLER CLASS
+// WARNING: THIS CLASS IS NO LONGER IN USE
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;

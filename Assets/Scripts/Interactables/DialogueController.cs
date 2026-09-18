@@ -172,6 +172,7 @@ public class DialogueController : MonoBehaviour
     public void StartDialogueTest()
     {
         // Dummy data for ease of testing
+        // Use this data as a template for creating dialogue from other classes (NPCs, items, etc)
         (string[] script, (string, int)[] choices)[] dialogueData = new (string[], (string, int)[])[]
         {
             (new string[] {"Hello, I am an NPC! Here to be non-playable and a character!", "Not much else though... Anyhoo, how are you?"}, 
