@@ -1,4 +1,4 @@
-// WARNING: THIS CLASS IS NO LONGER IN USE
+// WARNING: THIS FILE IS NO LONGER IN USE
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
