@@ -8,7 +8,6 @@ public class DialogueChoices : MonoBehaviour
 
     // Display
     private GameObject choiceContainer;
-    public TMP_FontAsset textFont;
 
     private (string text, int nextIndex)[] choices;
 
@@ -38,11 +37,6 @@ public class DialogueChoices : MonoBehaviour
     public void SetChoiceContainer(GameObject Container)
     {
         choiceContainer = Container;
-    }
-
-    public void SetFont(TMP_FontAsset font)
-    {
-        textFont = font;
     }
 
     public (string, int)[] GetChoices()
@@ -99,7 +93,6 @@ public class DialogueChoices : MonoBehaviour
 
         TextMeshProUGUI text = textObject.AddComponent<TextMeshProUGUI>();
 
-        text.font = textFont;
         text.text = choiceText;
         text.fontSize = 24f;
         text.color = Color.white;

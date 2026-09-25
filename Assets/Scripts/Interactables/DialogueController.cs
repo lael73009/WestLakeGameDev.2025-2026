@@ -51,7 +51,6 @@ public class DialogueController : MonoBehaviour
         // Create choices 
         choices = dialogueContainer.AddComponent<DialogueChoices>();
         choices.SetChoiceContainer(dialogueChoicesObject);
-        choices.SetFont(dialogueTextObject.font);
         
         // Add methods for the asyncs to call
         choices.OnDialogueChoiceSelected += SelectChoice;
@@ -73,8 +72,8 @@ public class DialogueController : MonoBehaviour
         RectTransform boxRect = dialogueBoxObject.GetComponent<RectTransform>();
         boxRect.anchorMin = new Vector2(0f, 0f);
         boxRect.anchorMax = new Vector2(1f, 0f);
-        boxRect.offsetMin = new Vector2(10f, 10);
-        boxRect.offsetMax = new Vector2(-10f, 210f);
+        boxRect.offsetMin = new Vector2(120f, 10);
+        boxRect.offsetMax = new Vector2(-120f, 210f);
 
         return dialogueBoxObject;
     }
