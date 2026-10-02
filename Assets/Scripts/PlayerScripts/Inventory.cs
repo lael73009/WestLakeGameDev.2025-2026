@@ -1,3 +1,4 @@
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -26,12 +27,19 @@ public class Inventory : MonoBehaviour
         CreateInventorySlots();
     }
 
+    void Update()
+    {
+        // TODO: REMOVE AFTER TESTING
+        if (Input.GetKeyDown(KeyCode.Q))
+        {
+            AddItem(CreateTestSprite());
+        }
+    }
+
     private GameObject CreateInventoryBox(GameObject parent, int slots)
     {
         // Create inventory box
-        GameObject inventoryBoxObject =
-            new GameObject("InventoryBox", typeof(RectTransform));
-
+        GameObject inventoryBoxObject = new GameObject("InventoryBox", typeof(RectTransform));
         inventoryBoxObject.transform.SetParent(parent.transform, false);
 
         // Set box look
@@ -64,7 +72,7 @@ public class Inventory : MonoBehaviour
 
         boxRect.sizeDelta = new Vector2(width, height);
 
-        // Set slot arrangement and location
+        // Set slot location
         HorizontalLayoutGroup layout = 
             inventoryBoxObject.AddComponent<HorizontalLayoutGroup>();
 
@@ -89,6 +97,7 @@ public class Inventory : MonoBehaviour
 
     private void CreateInventorySlots()
     {
+        // Loop through entire inventory size
         for (int i = 0; i < inventory.Length; i++)
         {
             // Create slot object
@@ -101,5 +110,54 @@ public class Inventory : MonoBehaviour
             inventory[i] = slot;
             slot.CreateSlot(slotWidth);
         }
+    }
+
+    private int FindNextOpenSlot()
+    {
+        // Loop through all slots to find an open one
+        for (int i=0; i<inventory.Length; i++)
+        {
+            if (inventory[i].GetItem() == null)
+            {
+                return i;
+            }
+        }
+
+        // Returns -1 if all slots are filled
+        return -1;
+    }
+
+    private void AddItem(Pickupable item)
+    {
+        // Add item at open slot
+        inventory[FindNextOpenSlot()].SetItem(item);
+    }
+
+    // TODO: REMOVE AFTER TESTING
+    private Pickupable CreateTestSprite()
+    {
+        Texture2D texture = new Texture2D(32, 32);
+
+        Color[] pixels = new Color[32 * 32];
+
+        for (int i = 0; i < pixels.Length; i++)
+        {
+            pixels[i] = Color.red;
+        }
+
+        texture.SetPixels(pixels);
+        texture.Apply();
+
+        Sprite sprite = Sprite.Create(
+            texture,
+            new Rect(0, 0, 32, 32),
+            new Vector2(0.5f, 0.5f)
+        );
+
+        return new Pickupable
+        {
+            name = "Red Box",
+            sprite = sprite
+        };
     }
 }
