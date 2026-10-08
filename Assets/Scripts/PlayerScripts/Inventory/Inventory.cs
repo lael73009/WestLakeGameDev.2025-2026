@@ -5,6 +5,8 @@ using System.IO;
 
 public class Inventory : MonoBehaviour
 {
+    private DialogueData inventoryFullDialogueData;
+
     public static Inventory Instance;
     
     private InventorySlot[] inventory;
@@ -18,7 +20,6 @@ public class Inventory : MonoBehaviour
         GameObject inventoryObject = new GameObject("Inventory");
         inventoryObject.AddComponent<Inventory>();
     }
-
 
     void Awake()
     {
@@ -40,6 +41,17 @@ public class Inventory : MonoBehaviour
 
         // Create inventory slots
         CreateInventorySlots();
+    }
+
+    void Start()
+    {
+        (string[] script, (string, int)[] choices)[] data = new (string[], (string, int)[])[]
+        {
+            (new string[] {"There's no more space in your pockets."}, 
+            new (string, int)[] {})
+        };
+
+        inventoryFullDialogueData = new DialogueData(data);
     }
 
     void Update()
@@ -142,10 +154,19 @@ public class Inventory : MonoBehaviour
         return -1;
     }
 
-    public void AddItem(Pickupable item)
+    // Returns slot item is added to
+    public int AddItem(Pickupable item)
     {
         // Add item at open slot
+        int slot = FindNextOpenSlot();
+        if (slot == -1)
+        {
+            DialogueController.Instance.StartDialogue(inventoryFullDialogueData);
+            return -1;
+        }
+
         inventory[FindNextOpenSlot()].SetItem(item);
+        return slot;
     }
 
     // TODO: REMOVE AFTER TESTING

@@ -2,12 +2,15 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
 using System.Linq;
+using System.Threading.Tasks;
 
 
 public class PickupableInteractable : Interactable
 {
+    private DialogueData dialogueData;
     private Pickupable item;
-    private Sprite sprite; 
+    private Sprite itemSprite; 
+    public string itemName;
 
     void Awake()
     {
@@ -19,9 +22,10 @@ public class PickupableInteractable : Interactable
             return;
         }
 
-        sprite = spriteRenderer.sprite;
+        itemSprite = spriteRenderer.sprite;
         item = new Pickupable();
-        item.sprite = sprite;
+        item.sprite = itemSprite;
+        item.name = itemName;
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -29,8 +33,13 @@ public class PickupableInteractable : Interactable
     {
         base.Start();
 
-        Debug.Log("Inventory: " + Inventory.Instance);
-        Debug.Log("Item: " + item);
+        (string[] script, (string, int)[] choices)[] data = new (string[], (string, int)[])[]
+        {
+            (new string[] {"Its a " + itemName + ". Pick it up?"}, 
+            new (string, int)[] {("Yes", -1), ("No.", -2)})
+        };
+
+        dialogueData = new DialogueData(data);
     }
 
     // Update is called once per frame
@@ -39,9 +48,27 @@ public class PickupableInteractable : Interactable
         CheckCollision();
     }
 
-    override public void OnCollision(Collider2D collidedObject)
+    override async public void OnCollision(Collider2D collidedObject)
     {
-        Inventory.Instance.AddItem(item);
-        Destroy(gameObject);
+        DialogueController.Instance.StartDialogue(dialogueData);
+
+        Task<int> choiceTask = DialogueController.Instance.ChooseNextDialogue();
+        int choice = await choiceTask;
+
+        DialogueController.Instance.EndDialogue();
+
+        if (choice == -1)
+        {
+            Pickup();
+        }
+    }
+
+    private void Pickup()
+    {
+        int slot = Inventory.Instance.AddItem(item);
+        if (slot != -1)
+        {
+            Destroy(gameObject);
+        }
     }
 }

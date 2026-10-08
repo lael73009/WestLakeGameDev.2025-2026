@@ -492,7 +492,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 67b39a38d4be847559e62ef3e56c3981, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NPCInteractable
-  dialogueChoices: []
 --- !u!50 &210884249
 Rigidbody2D:
   serializedVersion: 5
@@ -2277,6 +2276,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a83374dfbcafd465c933d090a01492d0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
+  itemName: evil guy
 --- !u!1 &1248238922
 GameObject:
   m_ObjectHideFlags: 0

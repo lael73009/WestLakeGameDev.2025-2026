@@ -138,7 +138,7 @@ public class DialogueController : MonoBehaviour
         for (int i=0; )
     }
 */
-    async void StartDialogue(DialogueData data)
+    public async void StartDialogue(DialogueData data)
     {
         int current = 0;
         int timeout = 0;
