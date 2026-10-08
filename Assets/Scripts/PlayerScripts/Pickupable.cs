@@ -3,6 +3,6 @@ using UnityEngine.UI;
 
 public class Pickupable
 {
-    public string name;
+    // TODO: ADD THE ABILITY TO HAVE SPECIAL FUNCTION (EX. EAT FOOD)
     public Sprite sprite;    
 }

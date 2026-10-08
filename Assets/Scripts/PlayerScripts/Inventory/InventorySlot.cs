@@ -8,6 +8,7 @@ public class InventorySlot : MonoBehaviour
     private Image slotImage;
 
     // Item variables
+    //SpriteRenderer itemRenderer;
     private Pickupable item;
     private Image itemImage;
 

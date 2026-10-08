@@ -4,12 +4,12 @@ using UnityEngine;
 public class Move : MonoBehaviour
 {     
     [SerializeField] private float moveSpeed = 5f;
-    private Rigidbody2D rb;
+    private Rigidbody2D rigidBody;
     private Vector2 input;
 
     void Awake()
     {
-        rb = GetComponent<Rigidbody2D>();
+        rigidBody = GetComponent<Rigidbody2D>();
     }
 
     // Update is called once per frame
@@ -19,7 +19,7 @@ public class Move : MonoBehaviour
     }
 
     void FixedUpdate() {
-        rb.linearVelocity = input * moveSpeed;
+        rigidBody.linearVelocity = input * moveSpeed;
     }
 
     private void HandleInputs() {

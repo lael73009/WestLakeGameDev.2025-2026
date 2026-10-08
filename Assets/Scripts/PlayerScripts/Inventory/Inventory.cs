@@ -1,15 +1,30 @@
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
+using System.IO;
 
 public class Inventory : MonoBehaviour
 {
+    public static Inventory Instance;
+    
     private InventorySlot[] inventory;
     float slotWidth = 40f;
     private GameObject slotContainer;
 
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+    private static void Initialize()
+    {
+        // Create an instance of the inventory
+        GameObject inventoryObject = new GameObject("Inventory");
+        inventoryObject.AddComponent<Inventory>();
+    }
+
+
     void Awake()
     {
+        // Create instance
+        Instance = this;
+
         // Create canvas
         GameObject canvasObject = new GameObject("InventoryCanvas");
 
@@ -127,7 +142,7 @@ public class Inventory : MonoBehaviour
         return -1;
     }
 
-    private void AddItem(Pickupable item)
+    public void AddItem(Pickupable item)
     {
         // Add item at open slot
         inventory[FindNextOpenSlot()].SetItem(item);
@@ -136,27 +151,12 @@ public class Inventory : MonoBehaviour
     // TODO: REMOVE AFTER TESTING
     private Pickupable CreateTestSprite()
     {
-        Texture2D texture = new Texture2D(32, 32);
+        // Find file in resources folder
+        Sprite sprite = Resources.Load<Sprite>("Sprites/Placeholders/Rosier");
 
-        Color[] pixels = new Color[32 * 32];
-
-        for (int i = 0; i < pixels.Length; i++)
-        {
-            pixels[i] = Color.red;
-        }
-
-        texture.SetPixels(pixels);
-        texture.Apply();
-
-        Sprite sprite = Sprite.Create(
-            texture,
-            new Rect(0, 0, 32, 32),
-            new Vector2(0.5f, 0.5f)
-        );
-
+        // Assign Sprite
         return new Pickupable
         {
-            name = "Red Box",
             sprite = sprite
         };
     }
