@@ -1,6 +1,7 @@
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 using System.IO;
 
 public class Inventory : MonoBehaviour
@@ -25,6 +26,15 @@ public class Inventory : MonoBehaviour
     {
         // Create instance
         Instance = this;
+
+        if (FindFirstObjectByType<EventSystem>() == null)
+        {
+            GameObject eventSystem = new GameObject(
+                "EventSystem",
+                typeof(EventSystem),
+                typeof(StandaloneInputModule)
+            );
+        }
 
         // Create canvas
         GameObject canvasObject = new GameObject("InventoryCanvas");
@@ -165,9 +175,26 @@ public class Inventory : MonoBehaviour
             return -1;
         }
 
-        inventory[FindNextOpenSlot()].SetItem(item);
+        inventory[slot].SetItem(item);
         return slot;
     }
+
+    public void MoveOrSwapItems(InventorySlot from, InventorySlot to)
+    {
+        if (from == null || to == null || from == to)
+            return;
+
+        // Swap items
+        Pickupable draggedItem = from.GetItem();
+        Pickupable targetItem = to.GetItem();
+
+        if (draggedItem == null)
+            return;
+
+        from.SetItem(targetItem);
+        to.SetItem(draggedItem);
+    }
+
 
     // TODO: REMOVE AFTER TESTING
     private Pickupable CreateTestSprite()

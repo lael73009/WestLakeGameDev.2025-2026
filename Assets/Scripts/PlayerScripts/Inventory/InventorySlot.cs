@@ -1,16 +1,21 @@
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
-public class InventorySlot : MonoBehaviour
+public class InventorySlot : MonoBehaviour, 
+                            IBeginDragHandler,
+                            IDragHandler,
+                            IEndDragHandler,
+                            IDropHandler
 {
     // Slot variables
     private RectTransform slotRect;
     private Image slotImage;
 
     // Item variables
-    //SpriteRenderer itemRenderer;
     private Pickupable item;
     private Image itemImage;
+    private Image dragImage;
 
     public Pickupable GetItem()
     {
@@ -101,5 +106,75 @@ public class InventorySlot : MonoBehaviour
         itemImage.raycastTarget = false;
 
         itemImage.enabled = false;
+    }
+
+    public void OnBeginDrag(PointerEventData eventData)
+    {
+        Pickupable item = GetItem();
+
+        // Only allow dragging if this slot contains an item
+        if (item == null || item.sprite == null)
+            return;
+
+        // Create a temporary image that follows the cursor
+        GameObject dragObject = new GameObject(
+            "DraggedItem",
+            typeof(RectTransform),
+            typeof(CanvasGroup),
+            typeof(Image)
+        );
+
+        dragObject.transform.SetParent(
+            GetComponentInParent<Canvas>().transform,
+            false
+        );
+
+        dragImage = dragObject.GetComponent<Image>();
+        dragImage.sprite = item.sprite;
+        dragImage.preserveAspect = true;
+        dragImage.raycastTarget = false;
+        dragObject.transform.SetAsLastSibling();
+
+        RectTransform rect = dragObject.GetComponent<RectTransform>();
+        rect.sizeDelta = GetComponent<RectTransform>().sizeDelta;
+        rect.position = eventData.position;
+    }
+
+    public void OnDrag(PointerEventData eventData)
+    {
+        // Move the item as its being dragged
+        if (dragImage == null)
+            return;
+
+        dragImage.rectTransform.position = eventData.position;
+    }
+
+    public void OnDrop(PointerEventData eventData)
+    {
+        // Identify the slot where the drag began
+        GameObject draggedObject = eventData.pointerDrag;
+
+        if (draggedObject == null) {
+            return;
+        }
+
+        // Swap items
+        InventorySlot from = draggedObject.GetComponent<InventorySlot>();
+
+        if (from == null || from == this) {
+            return;
+        }
+
+        Inventory.Instance.MoveOrSwapItems(from, this);
+    }
+
+    public void OnEndDrag(PointerEventData eventData)
+    {
+        // Release item
+        if (dragImage != null)
+        {
+            Destroy(dragImage.gameObject);
+            dragImage = null;
+        }
     }
 }

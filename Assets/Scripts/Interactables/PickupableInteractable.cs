@@ -36,7 +36,7 @@ public class PickupableInteractable : Interactable
         (string[] script, (string, int)[] choices)[] data = new (string[], (string, int)[])[]
         {
             (new string[] {"Its a " + itemName + ". Pick it up?"}, 
-            new (string, int)[] {("Yes", -1), ("No.", -2)})
+            new (string, int)[] {("Yes", -1), ("No", -2)})
         };
 
         dialogueData = new DialogueData(data);
