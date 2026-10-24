@@ -28,7 +28,12 @@ public class EnemyMove : MonoBehaviour
 
     private void Move()
     {
-            //Gizmos.DrawSphere(transform.position, sightRange);
+        //Gizmos.DrawSphere(transform.position, sightRange);
+        if (player == null) {
+        Debug.LogError($"EnemyMove on {gameObject.name} has a missing or destroyed player reference.", this);
+            return;
+        }
+
         playerLocation = player.transform.position;
         Vector2 direction = (playerLocation - (Vector2)(transform.position)).normalized;
 
