@@ -13,8 +13,8 @@ public class Inventory : MonoBehaviour
 
     // UI Elements
     private RectTransform inventoryBoxRect;
-    private GameObject mainSlotContainer;
-    private GameObject extraSlotContainer;
+    private GameObject[] slotContainers;
+
     private Button dropdownButton;
     private RectTransform arrowRect;
     private Text arrowText;
@@ -22,25 +22,15 @@ public class Inventory : MonoBehaviour
     private bool isExpanded = false;  
 
 
+    // Slot amounts
+    private int rows = 2;
+    private const int slotsPerRow = 10;
+
     // Visual settings
-    private const int TotalSlots = 20;
-    private const int VisibleSlots = 10;
     private float slotWidth = 40f;
     private float spacing = 5f;
-    private float padding = 5f;
+    private int padding = 5;
     private float dropdownHeight = 24f;
-
-    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-    private static void Initialize()
-    {
-        // Create an instance of the inventory
-        if (FindFirstObjectByType<Inventory>() != null) {
-            return;
-        }
-
-        GameObject inventoryObject = new GameObject("Inventory");
-        inventoryObject.AddComponent<Inventory>();
-    }
 
     void Awake()
     {
@@ -73,12 +63,25 @@ public class Inventory : MonoBehaviour
         canvasObject.AddComponent<GraphicRaycaster>();
 
         // Create inventory UI
-        inventory = new InventorySlot[TotalSlots];
+        inventory = new InventorySlot[rows * slotsPerRow];
+        slotContainers = new GameObject[rows];
 
         CreateInventoryBox(canvasObject);
         CreateInventorySlots();
 
         SetExpanded(false);
+    }
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+    private static void Initialize()
+    {
+        // Create an instance of the inventory
+        if (FindFirstObjectByType<Inventory>() != null) {
+            return;
+        }
+
+        GameObject inventoryObject = new GameObject("Inventory");
+        inventoryObject.AddComponent<Inventory>();
     }
 
     void Start()
@@ -111,7 +114,6 @@ public class Inventory : MonoBehaviour
         GameObject box = new GameObject(
             "InventoryBox",
             typeof(RectTransform),
-            typeof(Image),
             typeof(VerticalLayoutGroup)
         );
 
@@ -125,14 +127,7 @@ public class Inventory : MonoBehaviour
         inventoryBoxRect.pivot = new Vector2(0f, 1f);
         inventoryBoxRect.anchoredPosition = new Vector2(10f, -10f);
 
-        // Set box look
-        Image background = box.GetComponent<Image>();
-        background.color = Color.darkMagenta;
-        background.raycastTarget = false;
-
-        float rowWidth =
-            VisibleSlots * slotWidth +
-            (VisibleSlots - 1) * spacing;
+        float rowWidth = slotsPerRow * slotWidth + (slotsPerRow - 1) * spacing;
 
         inventoryBoxRect.sizeDelta = new Vector2(
             rowWidth + padding * 2,
@@ -140,16 +135,10 @@ public class Inventory : MonoBehaviour
         );
 
         // Set box layout
-        VerticalLayoutGroup verticalLayout =
-            box.GetComponent<VerticalLayoutGroup>();
+        VerticalLayoutGroup verticalLayout = box.GetComponent<VerticalLayoutGroup>();
 
-        verticalLayout.spacing = spacing;
-        verticalLayout.padding = new RectOffset(
-            (int)padding,
-            (int)padding,
-            (int)padding,
-            (int)padding
-        );
+        verticalLayout.spacing = 0f;
+        verticalLayout.padding = new RectOffset(0, 0, 0, 0);
 
         verticalLayout.childAlignment = TextAnchor.UpperLeft;
         verticalLayout.childControlWidth = false;
@@ -157,8 +146,8 @@ public class Inventory : MonoBehaviour
         verticalLayout.childForceExpandWidth = false;
         verticalLayout.childForceExpandHeight = false;
 
-        // First row: always visible
-        mainSlotContainer = CreateSlotRow(
+        // Set first row as always visible
+        slotContainers[0] = CreateSlotRow(
             box.transform,
             "MainSlotRow",
             rowWidth
@@ -168,14 +157,18 @@ public class Inventory : MonoBehaviour
         CreateDropdownButton(parent.transform, rowWidth);
 
         // Second row: hidden until expanded
-        extraSlotContainer = CreateSlotRow(
-            box.transform,
-            "ExtraSlotRow",
-            rowWidth
-        );
 
-        extraSlotContainer.SetActive(false);
+        for (int i=1; i<rows; i++)
+        {
+            slotContainers[i] = CreateSlotRow(
+                box.transform,
+                "ExtraSlotRow_" + i,
+                rowWidth
+            );
 
+            slotContainers[i].SetActive(false);
+        }
+        
         return box;
     }
 
@@ -207,7 +200,7 @@ public class Inventory : MonoBehaviour
         buttonRect.sizeDelta = new Vector2(dropdownHeight, dropdownHeight);
 
         buttonRect.anchoredPosition = new Vector2(
-            10f + rowWidth + padding * 2f + 5f,
+            10f + inventoryBoxRect.sizeDelta.x + 5f,
             -10f - padding
         );
 
@@ -246,19 +239,25 @@ public class Inventory : MonoBehaviour
         GameObject row = new GameObject(
             rowName,
             typeof(RectTransform),
+            typeof(Image),
             typeof(HorizontalLayoutGroup)
         );
 
         row.transform.SetParent(parent, false);
 
         RectTransform rowRect = row.GetComponent<RectTransform>();
-        rowRect.sizeDelta = new Vector2(rowWidth, slotWidth);
+        rowRect.sizeDelta = new Vector2(rowWidth + padding * 2, slotWidth + padding);
 
-        HorizontalLayoutGroup layout =
-            row.GetComponent<HorizontalLayoutGroup>();
+        // Set background
+        Image background = row.GetComponent<Image>();
+        background.color = Color.darkMagenta;
+        background.raycastTarget = false;
+
+        // Set layout
+        HorizontalLayoutGroup layout = row.GetComponent<HorizontalLayoutGroup>();
 
         layout.spacing = spacing;
-        layout.padding = new RectOffset(0, 0, 0, 0);
+        layout.padding = new RectOffset(padding, padding, padding/2, padding/2);
         layout.childAlignment = TextAnchor.MiddleLeft;
 
         layout.childControlWidth = false;
@@ -272,23 +271,23 @@ public class Inventory : MonoBehaviour
     private void CreateInventorySlots()
     {
         // Loop through entire inventory size
-        for (int i = 0; i < inventory.Length; i++)
+        for (int i = 0; i < slotContainers.Length; i++)
         {
             // Choose the correct row for this slot
-            Transform row = i < VisibleSlots
-                ? mainSlotContainer.transform
-                : extraSlotContainer.transform;
+            Transform row = slotContainers[i].transform;
 
-            // Create slot object
-            GameObject slotObject = new GameObject("InventorySlot_" + i, typeof(RectTransform));
-            slotObject.transform.SetParent(row, false);
+            for (int j = 0; j < slotsPerRow; j++) {
+                // Create slot object
+                GameObject slotObject = new GameObject("InventorySlot_" + i + "_" + j, typeof(RectTransform));
+                slotObject.transform.SetParent(row, false);
 
-            InventorySlot slot =
-                slotObject.AddComponent<InventorySlot>();
+                InventorySlot slot =
+                    slotObject.AddComponent<InventorySlot>();
 
-            inventory[i] = slot;
+                inventory[(i*slotsPerRow) + j] = slot;
 
-            slot.CreateSlot(slotWidth);
+                slot.CreateSlot(slotWidth);
+            }
         }
     }
 
@@ -300,27 +299,52 @@ public class Inventory : MonoBehaviour
     private void SetExpanded(bool expanded)
     {
         isExpanded = expanded;
-        extraSlotContainer.SetActive(isExpanded);
+
+        // Calculate visible rows
+        int lastVisibleRow = expanded ? rows - 1 : 0;
+
+        // Toggle rows and reset padding
+        slotContainers[0].SetActive(true);
+        for (int i = 0; i < rows; i++) 
+        {
+            // Toggle rows
+            slotContainers[i].SetActive(i == 0 || expanded);
+
+            // Reset padding
+            HorizontalLayoutGroup layout = slotContainers[i].GetComponent<HorizontalLayoutGroup>();
+
+            layout.padding.top = padding / 2;
+            layout.padding.bottom = padding / 2;
+            if (i == 0) 
+            {
+                layout.padding.top = padding;
+            }
+            if (i == lastVisibleRow)
+            {
+                layout.padding.bottom = padding;
+            }
+
+            // Update row height
+            RectTransform rowRect = slotContainers[i].GetComponent<RectTransform>();
+
+            rowRect.sizeDelta = new Vector2(
+                rowRect.sizeDelta.x,
+                slotWidth + layout.padding.top + layout.padding.bottom
+            );
+        }
 
         // Update the arrow 
-        if (arrowRect != null){
+        if (arrowRect != null) 
+        {
             arrowText.text = isExpanded ? "\u25B2" : "\u25BC";
             arrowText.gameObject.SetActive(true);
         }
-
-        // Update the background height
-        float height = padding * 2 + slotWidth;
-
-        if (isExpanded) {
-            height += spacing + slotWidth;
-        }
-
-        inventoryBoxRect.sizeDelta = new Vector2(inventoryBoxRect.sizeDelta.x, height);
     }
 
     private int FindNextOpenSlot()
     {
-        if (inventory == null) {
+        if (inventory == null) 
+        {
             Debug.LogError( $"Inventory array is not initialized on {gameObject.name}.", this);
             return -1;
         }
@@ -356,14 +380,18 @@ public class Inventory : MonoBehaviour
     public void MoveOrSwapItems(InventorySlot from, InventorySlot to)
     {
         if (from == null || to == null || from == to)
+        {
             return;
+        }
 
         // Swap items
         Pickupable draggedItem = from.GetItem();
         Pickupable targetItem = to.GetItem();
 
         if (draggedItem == null)
+        {
             return;
+        }
 
         from.SetItem(targetItem);
         to.SetItem(draggedItem);
@@ -381,18 +409,5 @@ public class Inventory : MonoBehaviour
         {
             sprite = sprite
         };
-    }
-
-    private string GetFullPath(Transform obj)
-    {
-        string path = obj.name;
-
-        while (obj.parent != null)
-        {
-            obj = obj.parent;
-            path = obj.name + "/" + path;
-        }
-
-        return path;
     }
 }
