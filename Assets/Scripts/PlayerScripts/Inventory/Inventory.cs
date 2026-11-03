@@ -12,6 +12,7 @@ public class Inventory : MonoBehaviour
     private DialogueData inventoryFullDialogueData;
 
     // UI Elements
+    private GameObject canvasObject;
     private RectTransform inventoryBoxRect;
     private GameObject[] slotContainers;
 
@@ -53,8 +54,9 @@ public class Inventory : MonoBehaviour
         }
         */
 
+        //TODO: MAKE ITS OWN METHOD
         // Create canvas
-        GameObject canvasObject = new GameObject("InventoryCanvas");
+        canvasObject = new GameObject("InventoryCanvas");
 
         Canvas canvas = canvasObject.AddComponent<Canvas>();
         canvas.renderMode = RenderMode.ScreenSpaceOverlay;
@@ -95,13 +97,23 @@ public class Inventory : MonoBehaviour
         inventoryFullDialogueData = new DialogueData(data);
     }
 
+
+    // TODO: REMOVE AFTER TESTING
     void Update()
     {
-        // TODO: REMOVE AFTER TESTING
         if (Input.GetKeyDown(KeyCode.Q))
         {
             if (Instance != null) {
                 Instance.AddItem(CreateTestSprite());
+            } else {
+                Debug.LogError("Inventory.Instance is null!");
+            }
+        }
+    
+        if (Input.GetKeyDown(KeyCode.B))
+        {
+            if (Instance != null) {
+                Instance.AddInventoryRows(1);
             } else {
                 Debug.LogError("Inventory.Instance is null!");
             }
@@ -146,19 +158,11 @@ public class Inventory : MonoBehaviour
         verticalLayout.childForceExpandWidth = false;
         verticalLayout.childForceExpandHeight = false;
 
-        // Set first row as always visible
-        slotContainers[0] = CreateSlotRow(
-            box.transform,
-            "MainSlotRow",
-            rowWidth
-        );
-
         // Dropdown button
         CreateDropdownButton(parent.transform, rowWidth);
 
-        // Second row: hidden until expanded
-
-        for (int i=1; i<rows; i++)
+        // Create rows
+        for (int i=0; i<rows; i++)
         {
             slotContainers[i] = CreateSlotRow(
                 box.transform,
@@ -166,7 +170,11 @@ public class Inventory : MonoBehaviour
                 rowWidth
             );
 
-            slotContainers[i].SetActive(false);
+            // Hide all but the first row
+            if (i != 0)
+            {
+                slotContainers[i].SetActive(false);
+            }
         }
         
         return box;
@@ -271,18 +279,18 @@ public class Inventory : MonoBehaviour
     private void CreateInventorySlots()
     {
         // Loop through entire inventory size
-        for (int i = 0; i < slotContainers.Length; i++)
+        for (int i=0; i<slotContainers.Length; i++)
         {
             // Choose the correct row for this slot
             Transform row = slotContainers[i].transform;
 
-            for (int j = 0; j < slotsPerRow; j++) {
+            for (int j=0; j<slotsPerRow; j++) 
+            {
                 // Create slot object
-                GameObject slotObject = new GameObject("InventorySlot_" + i + "_" + j, typeof(RectTransform));
+                GameObject slotObject = new GameObject("InventorySlot_" + ((i*slotsPerRow) + j), typeof(RectTransform));
                 slotObject.transform.SetParent(row, false);
 
-                InventorySlot slot =
-                    slotObject.AddComponent<InventorySlot>();
+                InventorySlot slot = slotObject.AddComponent<InventorySlot>();
 
                 inventory[(i*slotsPerRow) + j] = slot;
 
@@ -395,6 +403,41 @@ public class Inventory : MonoBehaviour
 
         from.SetItem(targetItem);
         to.SetItem(draggedItem);
+    }
+
+    public void AddInventoryRows(int newRows)
+    {
+        // Store then replace old inventory
+        rows += newRows;
+        InventorySlot[] oldInventory = inventory;
+        inventory = new InventorySlot[rows * slotsPerRow];
+        slotContainers = new GameObject[rows];
+
+        // Reset UI
+        Destroy(canvasObject);
+
+        //TODO: MAKE ITS OWN METHOD
+        canvasObject = new GameObject("InventoryCanvas");
+
+        Canvas canvas = canvasObject.AddComponent<Canvas>();
+        canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+
+        canvasObject.AddComponent<CanvasScaler>();
+        canvasObject.AddComponent<GraphicRaycaster>();
+
+        CreateInventoryBox(canvasObject);
+        CreateInventorySlots();
+
+        // Restore items
+        for (int i=0; i<oldInventory.Length; i++)
+        {
+            if (oldInventory[i].GetItem() != null)
+            {
+                inventory[i].SetItem(oldInventory[i].GetItem());
+            }
+        }
+
+        SetExpanded(isExpanded);
     }
 
 
