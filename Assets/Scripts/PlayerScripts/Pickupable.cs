@@ -6,4 +6,6 @@ public class Pickupable
     // TODO: ADD THE ABILITY TO HAVE SPECIAL FUNCTION (EX. EAT FOOD)
     public Sprite sprite;   
     public string name; 
+
+    public int maxAmount = 16;
 }

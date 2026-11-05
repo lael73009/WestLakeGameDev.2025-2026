@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using System.IO;
+using System;
 
 public class Inventory : MonoBehaviour
 {
@@ -11,7 +12,7 @@ public class Inventory : MonoBehaviour
     private InventorySlot[] inventory;
     private DialogueData inventoryFullDialogueData;
 
-    // UI Elements
+    // UI variables
     private GameObject canvasObject;
     private RectTransform inventoryBoxRect;
     private GameObject[] slotContainers;
@@ -23,11 +24,11 @@ public class Inventory : MonoBehaviour
     private bool isExpanded = false;  
 
 
-    // Slot amounts
+    // Slot amount variables
     private int rows = 2;
     private const int slotsPerRow = 10;
 
-    // Visual settings
+    // Slot visual settings variables
     private float slotWidth = 40f;
     private float spacing = 5f;
     private int padding = 5;
@@ -54,24 +55,7 @@ public class Inventory : MonoBehaviour
         }
         */
 
-        //TODO: MAKE ITS OWN METHOD
-        // Create canvas
-        canvasObject = new GameObject("InventoryCanvas");
-
-        Canvas canvas = canvasObject.AddComponent<Canvas>();
-        canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-
-        canvasObject.AddComponent<CanvasScaler>();
-        canvasObject.AddComponent<GraphicRaycaster>();
-
-        // Create inventory UI
-        inventory = new InventorySlot[rows * slotsPerRow];
-        slotContainers = new GameObject[rows];
-
-        CreateInventoryBox(canvasObject);
-        CreateInventorySlots();
-
-        SetExpanded(false);
+        SetupInventory();
     }
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
@@ -118,6 +102,37 @@ public class Inventory : MonoBehaviour
                 Debug.LogError("Inventory.Instance is null!");
             }
         }
+    }
+
+    private void SetupInventory()
+    {
+        // Create canvas
+        canvasObject = CreateCanvas();
+
+        // Create inventory 
+        inventory = new InventorySlot[rows * slotsPerRow];
+        slotContainers = new GameObject[rows];
+
+        // Create inventory UI
+        CreateInventoryBox(canvasObject);
+        CreateInventorySlots();
+
+        SetExpanded(isExpanded);
+    }
+
+    private GameObject CreateCanvas()
+    {
+        // Create canvas object
+        GameObject canvasObj = new GameObject("InventoryCanvas");
+
+        // Configure canvas
+        Canvas canvas = canvasObj.AddComponent<Canvas>();
+        canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+
+        canvasObj.AddComponent<CanvasScaler>();
+        canvasObj.AddComponent<GraphicRaycaster>();
+
+        return canvasObj;
     }
 
     private GameObject CreateInventoryBox(GameObject parent)
@@ -349,7 +364,7 @@ public class Inventory : MonoBehaviour
         }
     }
 
-    private int FindNextOpenSlot()
+    private int FindNextOpenSlot(Pickupable item)
     {
         if (inventory == null) 
         {
@@ -360,7 +375,8 @@ public class Inventory : MonoBehaviour
         // Loop through all slots to find an open one
         for (int i=0; i<inventory.Length; i++)
         {
-            if (inventory[i].GetItem() == null)
+            if (inventory[i].GetItem() == null || 
+                (inventory[i].GetItemAmount() < inventory[i].GetMaxItemAmount() && inventory[i].GetItemName() == item.name))
             {
                 return i;
             }
@@ -373,36 +389,63 @@ public class Inventory : MonoBehaviour
     // Returns slot item is added to
     public int AddItem(Pickupable item)
     {
-        // Add item at open slot
-        int slot = FindNextOpenSlot();
+        // Check for open slots
+        int slot = FindNextOpenSlot(item);
         if (slot == -1)
         {
             DialogueController.Instance.StartDialogue(inventoryFullDialogueData);
             return -1;
         }
 
-        inventory[slot].SetItem(item);
+        // Check if the next slot is open or stackabble
+        if (inventory[slot].GetItem() == null)
+        {
+            // Add new item
+            inventory[slot].SetItem(item);
+        }
+        else 
+        {
+            // Stack item
+            inventory[slot].AddItemAmount(1);
+        }
+
         return slot;
     }
 
     public void MoveOrSwapItems(InventorySlot from, InventorySlot to)
     {
+        // Avoid null errors
         if (from == null || to == null || from == to)
         {
             return;
         }
 
-        // Swap items
+        // Store items
         Pickupable draggedItem = from.GetItem();
         Pickupable targetItem = to.GetItem();
+        int fromItemAmount = from.GetItemAmount();
 
+        // Avoid more null errors
         if (draggedItem == null)
         {
             return;
         }
 
-        from.SetItem(targetItem);
-        to.SetItem(draggedItem);
+        // Check if stackable or swappable
+        if (to.GetItem() != null && from.GetItemName() == to.GetItemName())
+        {
+            // Stack items, leaving extra items in from slot (choose either the amount in the from slot or the max amount to add to the to slot)
+            int itemsToAdd = Math.Min(from.GetItemAmount(), to.GetMaxItemAmount() - to.GetItemAmount());
+
+            to.AddItemAmount(itemsToAdd);
+            from.RemoveItemAmount(itemsToAdd);
+        }
+        else
+        {
+            // Swap items
+            from.SetItemAndAmount(targetItem, to.GetItemAmount());
+            to.SetItemAndAmount(draggedItem, fromItemAmount);
+        }
     }
 
     public void AddInventoryRows(int newRows)
@@ -410,36 +453,20 @@ public class Inventory : MonoBehaviour
         // Store then replace old inventory
         rows += newRows;
         InventorySlot[] oldInventory = inventory;
-        inventory = new InventorySlot[rows * slotsPerRow];
-        slotContainers = new GameObject[rows];
 
         // Reset UI
         Destroy(canvasObject);
-
-        //TODO: MAKE ITS OWN METHOD
-        canvasObject = new GameObject("InventoryCanvas");
-
-        Canvas canvas = canvasObject.AddComponent<Canvas>();
-        canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-
-        canvasObject.AddComponent<CanvasScaler>();
-        canvasObject.AddComponent<GraphicRaycaster>();
-
-        CreateInventoryBox(canvasObject);
-        CreateInventorySlots();
+        SetupInventory();
 
         // Restore items
         for (int i=0; i<oldInventory.Length; i++)
         {
             if (oldInventory[i].GetItem() != null)
             {
-                inventory[i].SetItem(oldInventory[i].GetItem());
+                inventory[i].SetItemAndAmount(oldInventory[i].GetItem(), oldInventory[i].GetItemAmount());
             }
         }
-
-        SetExpanded(isExpanded);
     }
-
 
     // TODO: REMOVE AFTER TESTING
     private Pickupable CreateTestSprite()
@@ -450,7 +477,8 @@ public class Inventory : MonoBehaviour
         // Assign Sprite
         return new Pickupable
         {
-            sprite = sprite
+            sprite = sprite,
+            name = "Rosier"
         };
     }
 }

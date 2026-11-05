@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using TMPro;
 
 public class InventorySlot : MonoBehaviour, 
                             IBeginDragHandler,
@@ -13,16 +14,47 @@ public class InventorySlot : MonoBehaviour,
     private Image slotImage;
 
     // Item variables
+    public int itemAmount;
     private Pickupable item;
+
+    // UI variables
     private Image itemImage;
     private Image dragImage;
+    private TextMeshProUGUI itemAmountText;
 
     public Pickupable GetItem()
     {
         return item;
     }
 
+    public int GetItemAmount()
+    {
+        return itemAmount;
+    }
+
+    public string GetItemName()
+    {
+        return item.name;
+    }
+
+    public int GetMaxItemAmount()
+    {
+        return item.maxAmount;
+    }
+
     public void SetItem(Pickupable newItem)
+    {
+        // Add only 1 of item by default
+        SetItemAndAmount(newItem, 1);
+    }
+
+    public void SetItemAmount(int newItemAmount)
+    {
+        itemAmount = newItemAmount;
+        UpdateItemAmountDisplay();
+    }
+
+    public void SetItemAndAmount(Pickupable newItem, int newItemAmount)
     {
         // Avoid repetition by calling RemoveItem() if none is passed in
         if (newItem == null)
@@ -40,9 +72,17 @@ public class InventorySlot : MonoBehaviour,
 
         // Set item and sprites
         item = newItem;
+        itemAmount = newItemAmount;
 
         itemImage.sprite = item.sprite;
         itemImage.enabled = item.sprite != null;
+        UpdateItemAmountDisplay();
+    }
+
+    public void AddItemAmount(int amount)
+    {
+        itemAmount += amount;
+        UpdateItemAmountDisplay();
     }
 
     public void RemoveItem()
@@ -56,10 +96,25 @@ public class InventorySlot : MonoBehaviour,
         
         // Remove item and sprites
         item = null;
+        itemAmount = 0;
 
         itemImage.sprite = null;
         itemImage.enabled = false;
+        UpdateItemAmountDisplay();
     }
+
+    public void RemoveItemAmount(int amount)
+    {
+        if (amount >= itemAmount)
+        {
+            RemoveItem();
+            return;
+        }
+
+        itemAmount -= amount;
+        UpdateItemAmountDisplay();
+    }
+
 
     public void CreateSlot(float width)
     {
@@ -79,6 +134,7 @@ public class InventorySlot : MonoBehaviour,
 
         // Create item
         CreateItem(width);
+        CreateItemAmountDisplay(width);
 
         // Add button functionality
         Button button = gameObject.AddComponent<Button>();
@@ -106,6 +162,37 @@ public class InventorySlot : MonoBehaviour,
         itemImage.raycastTarget = false;
 
         itemImage.enabled = false;
+    }
+
+    public void CreateItemAmountDisplay(float width)
+    {
+        // Create text object
+        GameObject amountObject = new GameObject(
+            "ItemAmount",
+            typeof(RectTransform)
+        );
+
+        amountObject.transform.SetParent(transform, false);
+
+        itemAmountText = amountObject.AddComponent<TextMeshProUGUI>();
+
+        // Set text location
+        RectTransform amountRect = amountObject.GetComponent<RectTransform>();
+
+        amountRect.anchorMin = new Vector2(1f, 0f);
+        amountRect.anchorMax = new Vector2(1f, 0f);
+        amountRect.pivot = new Vector2(1f, 0f);
+
+        amountRect.anchoredPosition = new Vector2(-2f, 2f);
+        amountRect.sizeDelta = new Vector2(width * 0.5f, width * 0.4f);
+
+        // Set text format
+        itemAmountText.fontSize = 14;
+        itemAmountText.alignment = TextAlignmentOptions.BottomRight;
+        itemAmountText.color = Color.white;
+        itemAmountText.raycastTarget = false;
+
+        itemAmountText.text = "";
     }
 
     public void OnBeginDrag(PointerEventData eventData)
@@ -138,6 +225,15 @@ public class InventorySlot : MonoBehaviour,
         RectTransform rect = dragObject.GetComponent<RectTransform>();
         rect.sizeDelta = GetComponent<RectTransform>().sizeDelta;
         rect.position = eventData.position;
+    }
+
+    private void UpdateItemAmountDisplay()
+    {
+        if (itemAmountText == null)
+            return;
+
+        // Only display amounts greater than 1
+        itemAmountText.text = itemAmount > 1 ? itemAmount.ToString() : "";
     }
 
     public void OnDrag(PointerEventData eventData)
