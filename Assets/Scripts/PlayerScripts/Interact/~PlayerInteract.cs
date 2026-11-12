@@ -9,18 +9,18 @@ using UnityEngine;
 // No onlger used
 public class PlayerInteract : MonoBehaviour
 {
-    private Rigidbody2D rb;
-    private float pickUpRadius = 1.0f;
-    private interactable heldItem;
-    private GameObject[] inventory;
+    private Rigidbody2D _rb;
+    private float _pickUpRadius = 1.0f;
+    private interactable _heldItem;
+    private GameObject[] _inventory;
 
     // TO DO: MAKE SPECIFIC LAYER
-    public LayerMask detectionLayer;
+    public LayerMask _detectionLayer;
 
     void Awake()
     {
-        rb = GetComponent<Rigidbody2D>();
-        inventory = new GameObject[10];
+        _rb = GetComponent<Rigidbody2D>();
+        _inventory = new GameObject[10];
     }
 
     void Update()
@@ -30,8 +30,8 @@ public class PlayerInteract : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.E) && detectedObject && detectedObject)
         {
             Debug.Log("Interacted");
-            inventory[FindFirstFreeInventorySpot()] = detectedObject;
-            if (inventory != null) { Debug.Log(arrayToString(inventory)); }
+            _inventory[FindFirstFreeInventorySpot()] = detectedObject;
+            if (_inventory != null) { Debug.Log(arrayToString(_inventory)); }
             detectedObject.SetActive(false);
         }
     }
@@ -43,7 +43,7 @@ public class PlayerInteract : MonoBehaviour
 
     Collider2D DetectObject()
     {
-        return Physics2D.OverlapCircle(rb.position, pickUpRadius, detectionLayer);
+        return Physics2D.OverlapCircle(_rb.position, _pickUpRadius, _detectionLayer);
     }
 
     private Collider2D DetectClosestObject()
@@ -51,7 +51,7 @@ public class PlayerInteract : MonoBehaviour
         //Debug.Log("Detecting...");
 
         // Get all colliders in range
-        Collider2D[] hitColliders = Physics2D.OverlapCircleAll(rb.position, pickUpRadius, detectionLayer);
+        Collider2D[] hitColliders = Physics2D.OverlapCircleAll(_rb.position, _pickUpRadius, _detectionLayer);
         
         float minDistanceSqr = float.MaxValue;
         Collider2D closestObject = null;
@@ -81,9 +81,9 @@ public class PlayerInteract : MonoBehaviour
     {
         // Loop through index to find a free spot
         int index = -1;
-        for (int i=0; i<inventory.Length; i++)
+        for (int i=0; i<_inventory.Length; i++)
         {
-            if (inventory[i] == null)
+            if (_inventory[i] == null)
             {
                 index = i;
                 break;

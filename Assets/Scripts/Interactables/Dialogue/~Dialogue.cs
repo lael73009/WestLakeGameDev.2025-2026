@@ -8,94 +8,94 @@ using System.Threading.Tasks;
 public class Dialogue
 {
     // Text
-    private DialogueText text;
+    private DialogueText _text;
 
     // Choices
-    private DialogueChoices choices;
-    private TaskCompletionSource<int> playerChoice;
+    private DialogueChoices _choices;
+    private TaskCompletionSource<int> _playerChoice;
 
     public Dialogue(DialogueText newText, DialogueChoices newChoice)
     {
-        text = newText;
-        choices = newChoice;
+        _text = newText;
+        _choices = newChoice;
 
         // Add methods for the asyncs to call
-        choices.OnDialogueChoiceSelected += SelectChoice;
-        text.OnDialogueTextFinished += DisplayChoices;
+        _choices._OnDialogueChoiceSelected += SelectChoice;
+        _text._OnDialogueTextFinished += DisplayChoices;
     }
 
     public void SetScript(string[] newScript)
     {
-        text.SetScript(newScript);
+        _text.SetScript(newScript);
     }
 
     public void SetChoices((string, int)[] newChoices)
     {
-        choices.SetChoices(newChoices);
+        _choices.SetChoices(newChoices);
     }
 
     public void SetChoices(string[] texts, int[] newIndexes)
     {
-        choices.SetChoices(texts, newIndexes);
+        _choices.SetChoices(texts, newIndexes);
     }
 
     public void SetDialogueText(DialogueText newText)
     {
-        text = newText;
+        _text = newText;
     }
 
     public void SetDialogueChoices(DialogueChoices newChoice)
     {
-        choices = newChoice;
+        _choices = newChoice;
     }
 
     public DialogueText GetDialogueText()
     {
-        return text;
+        return _text;
     }
 
     public DialogueChoices GetDialogueChoices()
     {
-        return choices;
+        return _choices;
     }
 
     public void StartDialogue()
     {
         // Begin text
         Debug.Log("2. Dialogue method...");
-        text.StartDialogue();
+        _text.StartDialogue();
     }
 
     public Task<int> ChooseNextDialogue()
     {
         // Assign task
-        playerChoice = new TaskCompletionSource<int>();
-        return playerChoice.Task;
+        _playerChoice = new TaskCompletionSource<int>();
+        return _playerChoice.Task;
     }
 
     public void SelectChoice(int nextDialogue)
     {
-        if (playerChoice == null)
+        if (_playerChoice == null)
         {
             Debug.LogError("ERROR: playerChoice is null when a choice was selected!");
             return;
         }
 
         // Remove this dialogue's elements
-        text.choicesAreActive = false;
-        text.EndDialogueText();
-        choices.HideChoices();
+        _text._choicesAreActive = false;
+        _text.EndDialogueText();
+        _choices.HideChoices();
 
         // Spit out choice
-        TaskCompletionSource<int> currentChoice = playerChoice;
-        playerChoice = null;
+        TaskCompletionSource<int> currentChoice = _playerChoice;
+        _playerChoice = null;
         currentChoice.TrySetResult(nextDialogue);
     }
 
     public void DisplayChoices()
     {
         // Show choices
-        text.choicesAreActive = true;
-        choices.DisplayChoices();
+        _text._choicesAreActive = true;
+        _choices.DisplayChoices();
     }
 }

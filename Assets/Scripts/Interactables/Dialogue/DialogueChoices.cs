@@ -4,16 +4,16 @@ using UnityEngine.UI;
 
 public class DialogueChoices : MonoBehaviour
 {
-    public System.Action<int> OnDialogueChoiceSelected;
+    public System.Action<int> _OnDialogueChoiceSelected;
 
     // Display
-    private GameObject choiceContainer;
+    private GameObject _choiceContainer;
 
-    private (string text, int nextIndex)[] choices;
+    private (string text, int nextIndex)[] _choices;
 
     public void SetChoices((string, int)[] newChoices)
     {
-        choices = newChoices;
+        _choices = newChoices;
     }
 
     public void SetChoices(string[] newTexts, int[] newIndexes)
@@ -26,51 +26,51 @@ public class DialogueChoices : MonoBehaviour
         }
 
         // Set variables
-        choices = new (string, int)[newTexts.Length];
-        for(int i=0; i<choices.Length; i++)
+        _choices = new (string, int)[newTexts.Length];
+        for(int i=0; i<_choices.Length; i++)
         {
-            choices[i].Item1 = newTexts[i];
-            choices[i].Item2 = newIndexes[i];
+            _choices[i].Item1 = newTexts[i];
+            _choices[i].Item2 = newIndexes[i];
         }
     }
 
     public void SetChoiceContainer(GameObject Container)
     {
-        choiceContainer = Container;
+        _choiceContainer = Container;
     }
 
     public (string, int)[] GetChoices()
     {
-        return choices;
+        return _choices;
     }
 
     public void DisplayChoices()
     {
         // Clear container 
-        foreach (Transform child in choiceContainer.transform)
+        foreach (Transform child in _choiceContainer.transform)
         {
             Destroy(child.gameObject);
         }
 
         // Set container to hold choices
-        for (int i = 0; i < choices.Length; i++)
+        for (int i = 0; i < _choices.Length; i++)
         {
-            CreateChoiceButton(choices[i].Item1, choices[i].Item2);
+            CreateChoiceButton(_choices[i].Item1, _choices[i].Item2);
         }
         // Skip choices if there are none
-        if (choices.Length == 0)
+        if (_choices.Length == 0)
         {
             ChooseDialogue(-1);
         }
 
-        choiceContainer.SetActive(true);
+        _choiceContainer.SetActive(true);
         //LayoutRebuilder.ForceRebuildLayoutImmediate(choiceContainer.GetComponent<RectTransform>());
     }
 
     private void CreateChoiceButton(string choiceText, int choiceIndex)
     {
         GameObject buttonObject = new GameObject("Choice_" + choiceIndex, typeof(RectTransform));
-        buttonObject.transform.SetParent(choiceContainer.transform, false);
+        buttonObject.transform.SetParent(_choiceContainer.transform, false);
 
         // Create buttons
         RectTransform buttonRect = buttonObject.GetComponent<RectTransform>();
@@ -122,12 +122,12 @@ public class DialogueChoices : MonoBehaviour
     private void ChooseDialogue(int choiceIndex)
     {
         // Spit out pressed button index
-        OnDialogueChoiceSelected?.Invoke(choiceIndex);
+        _OnDialogueChoiceSelected?.Invoke(choiceIndex);
     }
 
     public void HideChoices()
     {
         // Disappear
-        choiceContainer.SetActive(false);
+        _choiceContainer.SetActive(false);
     }
 }

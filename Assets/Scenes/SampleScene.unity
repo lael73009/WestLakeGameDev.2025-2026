@@ -181,7 +181,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cf734324083ec47c787b4821da7ca08b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 5
+  _moveSpeed: 5
 --- !u!212 &118514346
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -267,7 +267,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2f4c68e32467541a0ba1af54edddf1b9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Health
-  maxHealth: 5
+  _maxHealth: 5
 --- !u!114 &118514351
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -280,9 +280,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bb554843e1f4e8edba21b053ae9645fb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerInteract
-  detectionLayer:
+  _detectionLayer:
     serializedVersion: 2
-    m_Bits: 128
+    m_Bits: 0
 --- !u!61 &118514352
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -2276,7 +2276,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a83374dfbcafd465c933d090a01492d0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
-  itemName: evil guy
+  _itemName: 
 --- !u!1 &1248238922
 GameObject:
   m_ObjectHideFlags: 0
@@ -2782,11 +2782,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8338470d9770545cbab63443d4e30f3e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyMove
-  player: {fileID: 118514343}
-  rigidbody: {fileID: 2027047428}
-  speed: 3
-  sightRange: 5
-  damage: 1
+  _player: {fileID: 118514343}
+  _rigidbody: {fileID: 2027047428}
+  _speed: 3
+  _sightRange: 5
+  _damage: 1
 --- !u!4 &2027047430
 Transform:
   m_ObjectHideFlags: 0

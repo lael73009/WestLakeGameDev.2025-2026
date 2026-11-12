@@ -3,21 +3,21 @@ using UnityEngine;
 
 public class EnemyMove : MonoBehaviour
 {
-    public GameObject player;
-    public Rigidbody2D rigidbody;
-    private Vector2 playerLocation;
+    [SerializeField] private GameObject _player;
+    [SerializeField] private Rigidbody2D _rigidbody;
+    private Vector2 _playerLocation;
 
-    public float speed;
-    public float sightRange;
+    public float _speed;
+    public float _sightRange;
 
-    // TO DO: MOVE SOMEWHRE ELSE
-    public int damage;
-    private Health playerHealth;
+    // TO DO: MOVE DAMAGE SCRIPT SOMEWHRE ELSE
+    public int _damage;
+    private Health _playerHealth;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        
+        _player = GameObject.Find("Player");
+        _rigidbody = GetComponent<Rigidbody2D>();
     }
 
     // Update is called once per frame
@@ -29,28 +29,33 @@ public class EnemyMove : MonoBehaviour
     private void Move()
     {
         //Gizmos.DrawSphere(transform.position, sightRange);
-        if (player == null) {
-        Debug.LogError($"EnemyMove on {gameObject.name} has a missing or destroyed player reference.", this);
+        if (_player == null) {
+            Debug.LogError($"EnemyMove on {gameObject.name} has a missing or destroyed player reference.", this);
             return;
         }
 
-        playerLocation = player.transform.position;
-        Vector2 direction = (playerLocation - (Vector2)(transform.position)).normalized;
+        if (_rigidbody == null)
+        {
+            Debug.Log("Grrr...");
+        }
+
+        _playerLocation = _player.transform.position;
+        Vector2 direction = (_playerLocation - (Vector2)(transform.position)).normalized;
 
         // Check if player is in range... probably not the best way to approach
-        if (Mathf.Sqrt(Mathf.Pow((playerLocation - (Vector2)(transform.position)).x, 2) + Mathf.Pow((playerLocation - (Vector2)(transform.position)).y, 2)) <= sightRange)
+        if (Mathf.Sqrt(Mathf.Pow((_playerLocation - (Vector2)(transform.position)).x, 2) + Mathf.Pow((_playerLocation - (Vector2)(transform.position)).y, 2)) <= _sightRange)
         {
             // Find movement vector to approach player
             float angle = Mathf.Atan2(direction.y, direction.x);
             Vector2 move = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle));
  
             // Move
-            rigidbody.linearVelocity = move*speed;
+            _rigidbody.linearVelocity = move*_speed;
         }
         else
         {
             // Slow down player is too far away... needs adjustment for gameplay reasons
-            rigidbody.linearVelocity = rigidbody.linearVelocity * new Vector2((float)(0.6), (float)(0.6));
+            _rigidbody.linearVelocity = _rigidbody.linearVelocity * new Vector2((float)(0.6), (float)(0.6));
         }
     }
 
@@ -61,13 +66,13 @@ public class EnemyMove : MonoBehaviour
         if(collision.gameObject.tag == "Player")
         {
             // Find player health only if it hasn't been found
-            if (playerHealth == null) 
+            if (_playerHealth == null) 
             {
-                playerHealth = collision.gameObject.GetComponent<Health>();
+                _playerHealth = collision.gameObject.GetComponent<Health>();
             }
 
             // Damage
-            playerHealth.TakeDamage(damage);
+            _playerHealth.TakeDamage(_damage);
         }
     } 
 }

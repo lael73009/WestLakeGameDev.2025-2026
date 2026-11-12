@@ -7,10 +7,10 @@ using System.Threading.Tasks;
 
 public class PickupableInteractable : Interactable
 {
-    private DialogueData dialogueData;
-    private Pickupable item;
-    private Sprite itemSprite; 
-    public string itemName;
+    private DialogueData _dialogueData;
+    private Pickupable _item;
+    private Sprite _itemSprite; 
+    public string _itemName;
 
     void Awake()
     {
@@ -22,10 +22,10 @@ public class PickupableInteractable : Interactable
             return;
         }
 
-        itemSprite = spriteRenderer.sprite;
-        item = new Pickupable();
-        item.sprite = itemSprite;
-        item.name = itemName;
+        _itemSprite = spriteRenderer.sprite;
+        _item = new Pickupable();
+        _item._sprite = _itemSprite;
+        _item._name = _itemName;
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -35,11 +35,11 @@ public class PickupableInteractable : Interactable
 
         (string[] script, (string, int)[] choices)[] data = new (string[], (string, int)[])[]
         {
-            (new string[] {"Its a " + itemName + ". Pick it up?"}, 
+            (new string[] {"Its a " + _itemName + ". Pick it up?"}, 
             new (string, int)[] {("Yes", -1), ("No", -2)})
         };
 
-        dialogueData = new DialogueData(data);
+        _dialogueData = new DialogueData(data);
     }
 
     // Update is called once per frame
@@ -50,12 +50,12 @@ public class PickupableInteractable : Interactable
 
     override async public void OnCollision(Collider2D collidedObject)
     {
-        DialogueController.Instance.StartDialogue(dialogueData);
+        DialogueController._Instance.StartDialogue(_dialogueData);
 
-        Task<int> choiceTask = DialogueController.Instance.ChooseNextDialogue();
+        Task<int> choiceTask = DialogueController._Instance.ChooseNextDialogue();
         int choice = await choiceTask;
 
-        DialogueController.Instance.EndDialogue();
+        DialogueController._Instance.EndDialogue();
 
         if (choice == -1)
         {
@@ -65,7 +65,7 @@ public class PickupableInteractable : Interactable
 
     private void Pickup()
     {
-        int slot = Inventory.Instance.AddItem(item);
+        int slot = Inventory._Instance.AddItem(_item);
         if (slot != -1)
         {
             Destroy(gameObject);

@@ -8,41 +8,41 @@ using System;
 public class Inventory : MonoBehaviour
 {
 
-    public static Inventory Instance;
-    private InventorySlot[] inventory;
-    private DialogueData inventoryFullDialogueData;
+    public static Inventory _Instance;
+    private InventorySlot[] _inventory;
+    private DialogueData _inventoryFullDialogueData;
 
     // UI variables
-    private GameObject canvasObject;
-    private RectTransform inventoryBoxRect;
-    private GameObject[] slotContainers;
+    private GameObject _canvasObject;
+    private RectTransform _inventoryBoxRect;
+    private GameObject[] _slotContainers;
 
-    private Button dropdownButton;
-    private RectTransform arrowRect;
-    private Text arrowText;
+    private Button _dropdownButton;
+    private RectTransform _arrowRect;
+    private Text _arrowText;
 
-    private bool isExpanded = false;  
+    private bool _isExpanded = false;  
 
 
     // Slot amount variables
-    private int rows = 2;
-    private const int slotsPerRow = 10;
+    private int _rows = 2;
+    private const int _slotsPerRow = 10;
 
     // Slot visual settings variables
-    private float slotWidth = 40f;
-    private float spacing = 5f;
-    private int padding = 5;
-    private float dropdownHeight = 24f;
+    private float _slotWidth = 40f;
+    private float _spacing = 5f;
+    private int _padding = 5;
+    private float _dropdownHeight = 24f;
 
     void Awake()
     {
         // Create instance
-        if (Instance != null && Instance != this) {
+        if (_Instance != null && _Instance != this) {
             Destroy(this);
             return;
         }
 
-        Instance = this;
+        _Instance = this;
 
         /*
         if (FindFirstObjectByType<EventSystem>() == null)
@@ -78,7 +78,7 @@ public class Inventory : MonoBehaviour
             new (string, int)[] {})
         };
 
-        inventoryFullDialogueData = new DialogueData(data);
+        _inventoryFullDialogueData = new DialogueData(data);
     }
 
 
@@ -87,8 +87,8 @@ public class Inventory : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Q))
         {
-            if (Instance != null) {
-                Instance.AddItem(CreateTestSprite());
+            if (_Instance != null) {
+                _Instance.AddItem(CreateTestSprite());
             } else {
                 Debug.LogError("Inventory.Instance is null!");
             }
@@ -96,8 +96,8 @@ public class Inventory : MonoBehaviour
     
         if (Input.GetKeyDown(KeyCode.B))
         {
-            if (Instance != null) {
-                Instance.AddInventoryRows(1);
+            if (_Instance != null) {
+                _Instance.AddInventoryRows(1);
             } else {
                 Debug.LogError("Inventory.Instance is null!");
             }
@@ -107,32 +107,32 @@ public class Inventory : MonoBehaviour
     private void SetupInventory()
     {
         // Create canvas
-        canvasObject = CreateCanvas();
+        _canvasObject = CreateCanvas();
 
         // Create inventory 
-        inventory = new InventorySlot[rows * slotsPerRow];
-        slotContainers = new GameObject[rows];
+        _inventory = new InventorySlot[_rows * _slotsPerRow];
+        _slotContainers = new GameObject[_rows];
 
         // Create inventory UI
-        CreateInventoryBox(canvasObject);
+        CreateInventoryBox(_canvasObject);
         CreateInventorySlots();
 
-        SetExpanded(isExpanded);
+        SetExpanded(_isExpanded);
     }
 
     private GameObject CreateCanvas()
     {
         // Create canvas object
-        GameObject canvasObj = new GameObject("InventoryCanvas");
+        GameObject canvasObject = new GameObject("InventoryCanvas");
 
         // Configure canvas
-        Canvas canvas = canvasObj.AddComponent<Canvas>();
+        Canvas canvas = canvasObject.AddComponent<Canvas>();
         canvas.renderMode = RenderMode.ScreenSpaceOverlay;
 
-        canvasObj.AddComponent<CanvasScaler>();
-        canvasObj.AddComponent<GraphicRaycaster>();
+        canvasObject.AddComponent<CanvasScaler>();
+        canvasObject.AddComponent<GraphicRaycaster>();
 
-        return canvasObj;
+        return canvasObject;
     }
 
     private GameObject CreateInventoryBox(GameObject parent)
@@ -147,18 +147,18 @@ public class Inventory : MonoBehaviour
         // Set box loaction
         box.transform.SetParent(parent.transform, false);
 
-        inventoryBoxRect = box.GetComponent<RectTransform>();
+        _inventoryBoxRect = box.GetComponent<RectTransform>();
 
-        inventoryBoxRect.anchorMin = new Vector2(0f, 1f);
-        inventoryBoxRect.anchorMax = new Vector2(0f, 1f);
-        inventoryBoxRect.pivot = new Vector2(0f, 1f);
-        inventoryBoxRect.anchoredPosition = new Vector2(10f, -10f);
+        _inventoryBoxRect.anchorMin = new Vector2(0f, 1f);
+        _inventoryBoxRect.anchorMax = new Vector2(0f, 1f);
+        _inventoryBoxRect.pivot = new Vector2(0f, 1f);
+        _inventoryBoxRect.anchoredPosition = new Vector2(10f, -10f);
 
-        float rowWidth = slotsPerRow * slotWidth + (slotsPerRow - 1) * spacing;
+        float rowWidth = _slotsPerRow * _slotWidth + (_slotsPerRow - 1) * _spacing;
 
-        inventoryBoxRect.sizeDelta = new Vector2(
-            rowWidth + padding * 2,
-            slotWidth + padding * 2 + dropdownHeight + spacing
+        _inventoryBoxRect.sizeDelta = new Vector2(
+            rowWidth + _padding * 2,
+            _slotWidth + _padding * 2 + _dropdownHeight + _spacing
         );
 
         // Set box layout
@@ -177,9 +177,9 @@ public class Inventory : MonoBehaviour
         CreateDropdownButton(parent.transform, rowWidth);
 
         // Create rows
-        for (int i=0; i<rows; i++)
+        for (int i=0; i<_rows; i++)
         {
-            slotContainers[i] = CreateSlotRow(
+            _slotContainers[i] = CreateSlotRow(
                 box.transform,
                 "ExtraSlotRow_" + i,
                 rowWidth
@@ -188,7 +188,7 @@ public class Inventory : MonoBehaviour
             // Hide all but the first row
             if (i != 0)
             {
-                slotContainers[i].SetActive(false);
+                _slotContainers[i].SetActive(false);
             }
         }
         
@@ -212,26 +212,26 @@ public class Inventory : MonoBehaviour
         RectTransform buttonRect = buttonObject.GetComponent<RectTransform>();
 
         Image buttonImage = buttonObject.GetComponent<Image>();
-        dropdownButton = buttonObject.GetComponent<Button>();
-        dropdownButton.transition = Selectable.Transition.None;
+        _dropdownButton = buttonObject.GetComponent<Button>();
+        _dropdownButton.transition = Selectable.Transition.None;
 
         // Position the button to the right of the inventory box
         buttonRect.anchorMin = new Vector2(0f, 1f);
         buttonRect.anchorMax = new Vector2(0f, 1f);
         buttonRect.pivot = new Vector2(0f, 1f);
 
-        buttonRect.sizeDelta = new Vector2(dropdownHeight, dropdownHeight);
+        buttonRect.sizeDelta = new Vector2(_dropdownHeight, _dropdownHeight);
 
         buttonRect.anchoredPosition = new Vector2(
-            10f + inventoryBoxRect.sizeDelta.x + 5f,
-            -10f - padding
+            10f + _inventoryBoxRect.sizeDelta.x + 5f,
+            -10f - _padding
         );
 
         // Transparent background, but still clickable
         buttonImage.color = new Color(1f, 1f, 1f, 0f);
         buttonImage.raycastTarget = true;
 
-        dropdownButton.onClick.AddListener(ToggleExpanded);
+        _dropdownButton.onClick.AddListener(ToggleExpanded);
 
         // Create the arrow text
         GameObject arrowObject = new GameObject(
@@ -242,19 +242,19 @@ public class Inventory : MonoBehaviour
 
         arrowObject.transform.SetParent(buttonObject.transform, false);
 
-        arrowRect = arrowObject.GetComponent<RectTransform>();
-        arrowRect.anchorMin = Vector2.zero;
-        arrowRect.anchorMax = Vector2.one;
-        arrowRect.offsetMin = Vector2.zero;
-        arrowRect.offsetMax = Vector2.zero;
+        _arrowRect = arrowObject.GetComponent<RectTransform>();
+        _arrowRect.anchorMin = Vector2.zero;
+        _arrowRect.anchorMax = Vector2.one;
+        _arrowRect.offsetMin = Vector2.zero;
+        _arrowRect.offsetMax = Vector2.zero;
 
-        arrowText = arrowObject.GetComponent<Text>();
-        arrowText.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-        arrowText.fontSize = 16;
-        arrowText.text = "\u25BC";
-        arrowText.color = Color.white;
-        arrowText.alignment = TextAnchor.MiddleCenter;
-        arrowText.raycastTarget = false;
+        _arrowText = arrowObject.GetComponent<Text>();
+        _arrowText.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+        _arrowText.fontSize = 16;
+        _arrowText.text = "\u25BC";
+        _arrowText.color = Color.white;
+        _arrowText.alignment = TextAnchor.MiddleCenter;
+        _arrowText.raycastTarget = false;
     }
 
     private GameObject CreateSlotRow(Transform parent, string rowName, float rowWidth)
@@ -269,7 +269,7 @@ public class Inventory : MonoBehaviour
         row.transform.SetParent(parent, false);
 
         RectTransform rowRect = row.GetComponent<RectTransform>();
-        rowRect.sizeDelta = new Vector2(rowWidth + padding * 2, slotWidth + padding);
+        rowRect.sizeDelta = new Vector2(rowWidth + _padding * 2, _slotWidth + _padding);
 
         // Set background
         Image background = row.GetComponent<Image>();
@@ -279,8 +279,8 @@ public class Inventory : MonoBehaviour
         // Set layout
         HorizontalLayoutGroup layout = row.GetComponent<HorizontalLayoutGroup>();
 
-        layout.spacing = spacing;
-        layout.padding = new RectOffset(padding, padding, padding/2, padding/2);
+        layout.spacing = _spacing;
+        layout.padding = new RectOffset(_padding, _padding, _padding/2, _padding/2);
         layout.childAlignment = TextAnchor.MiddleLeft;
 
         layout.childControlWidth = false;
@@ -294,89 +294,89 @@ public class Inventory : MonoBehaviour
     private void CreateInventorySlots()
     {
         // Loop through entire inventory size
-        for (int i=0; i<slotContainers.Length; i++)
+        for (int i=0; i<_slotContainers.Length; i++)
         {
             // Choose the correct row for this slot
-            Transform row = slotContainers[i].transform;
+            Transform row = _slotContainers[i].transform;
 
-            for (int j=0; j<slotsPerRow; j++) 
+            for (int j=0; j<_slotsPerRow; j++) 
             {
                 // Create slot object
-                GameObject slotObject = new GameObject("InventorySlot_" + ((i*slotsPerRow) + j), typeof(RectTransform));
+                GameObject slotObject = new GameObject("InventorySlot_" + ((i*_slotsPerRow) + j), typeof(RectTransform));
                 slotObject.transform.SetParent(row, false);
 
                 InventorySlot slot = slotObject.AddComponent<InventorySlot>();
 
-                inventory[(i*slotsPerRow) + j] = slot;
+                _inventory[(i*_slotsPerRow) + j] = slot;
 
-                slot.CreateSlot(slotWidth);
+                slot.CreateSlot(_slotWidth);
             }
         }
     }
 
     private void ToggleExpanded()
     {
-        SetExpanded(!isExpanded);
+        SetExpanded(!_isExpanded);
     }
 
     private void SetExpanded(bool expanded)
     {
-        isExpanded = expanded;
+        _isExpanded = expanded;
 
         // Calculate visible rows
-        int lastVisibleRow = expanded ? rows - 1 : 0;
+        int lastVisibleRow = expanded ? _rows - 1 : 0;
 
         // Toggle rows and reset padding
-        slotContainers[0].SetActive(true);
-        for (int i = 0; i < rows; i++) 
+        _slotContainers[0].SetActive(true);
+        for (int i = 0; i < _rows; i++) 
         {
             // Toggle rows
-            slotContainers[i].SetActive(i == 0 || expanded);
+            _slotContainers[i].SetActive(i == 0 || expanded);
 
             // Reset padding
-            HorizontalLayoutGroup layout = slotContainers[i].GetComponent<HorizontalLayoutGroup>();
+            HorizontalLayoutGroup layout = _slotContainers[i].GetComponent<HorizontalLayoutGroup>();
 
-            layout.padding.top = padding / 2;
-            layout.padding.bottom = padding / 2;
+            layout.padding.top = _padding / 2;
+            layout.padding.bottom = _padding / 2;
             if (i == 0) 
             {
-                layout.padding.top = padding;
+                layout.padding.top = _padding;
             }
             if (i == lastVisibleRow)
             {
-                layout.padding.bottom = padding;
+                layout.padding.bottom = _padding;
             }
 
             // Update row height
-            RectTransform rowRect = slotContainers[i].GetComponent<RectTransform>();
+            RectTransform rowRect = _slotContainers[i].GetComponent<RectTransform>();
 
             rowRect.sizeDelta = new Vector2(
                 rowRect.sizeDelta.x,
-                slotWidth + layout.padding.top + layout.padding.bottom
+                _slotWidth + layout.padding.top + layout.padding.bottom
             );
         }
 
         // Update the arrow 
-        if (arrowRect != null) 
+        if (_arrowRect != null) 
         {
-            arrowText.text = isExpanded ? "\u25B2" : "\u25BC";
-            arrowText.gameObject.SetActive(true);
+            _arrowText.text = _isExpanded ? "\u25B2" : "\u25BC";
+            _arrowText.gameObject.SetActive(true);
         }
     }
 
     private int FindNextOpenSlot(Pickupable item)
     {
-        if (inventory == null) 
+        if (_inventory == null) 
         {
             Debug.LogError( $"Inventory array is not initialized on {gameObject.name}.", this);
             return -1;
         }
 
         // Loop through all slots to find an open one
-        for (int i=0; i<inventory.Length; i++)
+        for (int i=0; i<_inventory.Length; i++)
         {
-            if (inventory[i].GetItem() == null || 
-                (inventory[i].GetItemAmount() < inventory[i].GetMaxItemAmount() && inventory[i].GetItemName() == item.name))
+            if (_inventory[i].GetItem() == null || 
+                (_inventory[i].GetItemAmount() < _inventory[i].GetMaxItemAmount() && _inventory[i].GetItemName() == item._name))
             {
                 return i;
             }
@@ -393,20 +393,20 @@ public class Inventory : MonoBehaviour
         int slot = FindNextOpenSlot(item);
         if (slot == -1)
         {
-            DialogueController.Instance.StartDialogue(inventoryFullDialogueData);
+            DialogueController._Instance.StartDialogue(_inventoryFullDialogueData);
             return -1;
         }
 
         // Check if the next slot is open or stackabble
-        if (inventory[slot].GetItem() == null)
+        if (_inventory[slot].GetItem() == null)
         {
             // Add new item
-            inventory[slot].SetItem(item);
+            _inventory[slot].SetItem(item);
         }
         else 
         {
             // Stack item
-            inventory[slot].AddItemAmount(1);
+            _inventory[slot].AddItemAmount(1);
         }
 
         return slot;
@@ -451,11 +451,11 @@ public class Inventory : MonoBehaviour
     public void AddInventoryRows(int newRows)
     {
         // Store then replace old inventory
-        rows += newRows;
-        InventorySlot[] oldInventory = inventory;
+        _rows += newRows;
+        InventorySlot[] oldInventory = _inventory;
 
         // Reset UI
-        Destroy(canvasObject);
+        Destroy(_canvasObject);
         SetupInventory();
 
         // Restore items
@@ -463,7 +463,7 @@ public class Inventory : MonoBehaviour
         {
             if (oldInventory[i].GetItem() != null)
             {
-                inventory[i].SetItemAndAmount(oldInventory[i].GetItem(), oldInventory[i].GetItemAmount());
+                _inventory[i].SetItemAndAmount(oldInventory[i].GetItem(), oldInventory[i].GetItemAmount());
             }
         }
     }
@@ -477,8 +477,8 @@ public class Inventory : MonoBehaviour
         // Assign Sprite
         return new Pickupable
         {
-            sprite = sprite,
-            name = "Rosier"
+            _sprite = sprite,
+            _name = "Rosier"
         };
     }
 }

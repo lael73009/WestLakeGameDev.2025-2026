@@ -6,7 +6,7 @@ using System.Linq;
 
 public class NPCInteractable : Interactable
 {
-    public DialogueData dialogueData;
+    public DialogueData _dialogueData;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     new void Start()
@@ -23,7 +23,7 @@ public class NPCInteractable : Interactable
     override public void OnCollision(Collider2D collidedObject)
     {
         // Start dialogue
-        DialogueController.Instance.StartDialogueTest();
+        DialogueController._Instance.StartDialogueTest();
         //Debug.Log("What is happening");
     }
 }

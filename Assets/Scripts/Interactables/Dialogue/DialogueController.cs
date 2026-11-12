@@ -7,17 +7,17 @@ using System.Threading.Tasks;
 public class DialogueController : MonoBehaviour
 {
     // Allow other objects to access the general class without a specific identifier
-    public static DialogueController Instance;
-    private GameObject dialogueContainer;
+    public static DialogueController _Instance;
+    private GameObject _dialogueContainer;
 
     // Text
-    private DialogueText text;
+    private DialogueText _text;
     // Choices
-    private DialogueChoices choices;
+    private DialogueChoices _choices;
 
-    private TaskCompletionSource<int> playerChoice;
+    private TaskCompletionSource<int> _playerChoice;
     
-    public bool IsDialogueActive = false;
+    public bool _IsDialogueActive = false;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     private static void Initialize()
@@ -29,7 +29,7 @@ public class DialogueController : MonoBehaviour
 
     void Awake()
     {
-        Instance = this;
+        _Instance = this;
         
         // Create canvas
         GameObject canvasObject = new GameObject("DialogueCanvas");
@@ -39,22 +39,22 @@ public class DialogueController : MonoBehaviour
         canvasObject.AddComponent<UnityEngine.UI.GraphicRaycaster>();
 
         // Create UI Objects
-        dialogueContainer = CreateDialogueBox(canvasObject);
-        TextMeshProUGUI dialogueTextObject = CreateDialogueText(dialogueContainer);
-        GameObject dialogueChoicesObject = CreateDialogueChoices(dialogueContainer);
+        _dialogueContainer = CreateDialogueBox(canvasObject);
+        TextMeshProUGUI dialogueTextObject = CreateDialogueText(_dialogueContainer);
+        GameObject dialogueChoicesObject = CreateDialogueChoices(_dialogueContainer);
 
         // Create text
-        text = dialogueContainer.AddComponent<DialogueText>();
-        text.SetTextComponent(dialogueTextObject);
-        dialogueContainer.SetActive(false);
+        _text = _dialogueContainer.AddComponent<DialogueText>();
+        _text.SetTextComponent(dialogueTextObject);
+        _dialogueContainer.SetActive(false);
 
         // Create choices 
-        choices = dialogueContainer.AddComponent<DialogueChoices>();
-        choices.SetChoiceContainer(dialogueChoicesObject);
+        _choices = _dialogueContainer.AddComponent<DialogueChoices>();
+        _choices.SetChoiceContainer(dialogueChoicesObject);
         
         // Add methods for the asyncs to call
-        choices.OnDialogueChoiceSelected += SelectChoice;
-        text.OnDialogueTextFinished += DisplayChoices;
+        _choices._OnDialogueChoiceSelected += SelectChoice;
+        _text._OnDialogueTextFinished += DisplayChoices;
     }
 
     private GameObject CreateDialogueBox(GameObject parent)
@@ -142,16 +142,16 @@ public class DialogueController : MonoBehaviour
     {
         int current = 0;
         int timeout = 0;
-        IsDialogueActive = true;
+        _IsDialogueActive = true;
 
         // Loop though all dialogue, changing index based of player choice
-        while (current >= 0 && current < data.dialogueData.Length) {
-            text.SetScript(data.dialogueData[current].Item1);
+        while (current >= 0 && current < data._dialogueData.Length) {
+            _text.SetScript(data._dialogueData[current].Item1);
 
             // Make dialogue the current index in DialogueData
-            choices.SetChoices(data.dialogueData[current].Item2);
+            _choices.SetChoices(data._dialogueData[current].Item2);
             Task<int> choiceTask = ChooseNextDialogue();
-            text.StartDialogue();
+            _text.StartDialogue();
 
             // Make the index the next choice
             current = await choiceTask;
@@ -202,42 +202,42 @@ public class DialogueController : MonoBehaviour
     public Task<int> ChooseNextDialogue()
     {
         // Assign task
-        playerChoice = new TaskCompletionSource<int>();
-        return playerChoice.Task;
+        _playerChoice = new TaskCompletionSource<int>();
+        return _playerChoice.Task;
     }
 
     public void SelectChoice(int nextDialogue)
     {
         // Protect against null errors
-        if (playerChoice == null)
+        if (_playerChoice == null)
         {
             Debug.LogError("ERROR: playerChoice is null when a choice was selected!");
             return;
         }
 
         // Remove this dialogue's elements
-        text.choicesAreActive = false;
-        text.EndDialogueText();
-        choices.HideChoices();
+        _text._choicesAreActive = false;
+        _text.EndDialogueText();
+        _choices.HideChoices();
 
         // Spit out choice
-        TaskCompletionSource<int> currentChoice = playerChoice;
-        playerChoice = null;
+        TaskCompletionSource<int> currentChoice = _playerChoice;
+        _playerChoice = null;
         currentChoice.TrySetResult(nextDialogue);
     }
 
     public void DisplayChoices()
     {
         // Show choices
-        text.choicesAreActive = true;
-        choices.DisplayChoices();
+        _text._choicesAreActive = true;
+        _choices.DisplayChoices();
     }
 
 
     public void EndDialogue()
     {
         // Remove dialogue box and allow another to be created
-        IsDialogueActive = false;
-        dialogueContainer.SetActive(false);
+        _IsDialogueActive = false;
+        _dialogueContainer.SetActive(false);
     }
 }

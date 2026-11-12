@@ -4,20 +4,20 @@ using System.Collections;
 public class DialogueText : MonoBehaviour
 {
     // Display
-    public TextMeshProUGUI textComponent;
+    public TextMeshProUGUI _textComponent;
 
-    private string[] script;
-    private float textSpeed = 0.05f;
-    private int index; 
-    public bool choicesAreActive = false;
+    private string[] _script;
+    private float _textSpeed = 0.05f;
+    private int _index; 
+    public bool _choicesAreActive = false;
 
-    public System.Action OnDialogueTextFinished;
+    public System.Action _OnDialogueTextFinished;
 
     // Update is called once per frame
     void Update()
     {   
         // Keep text on screen while player chooses 
-        if (choicesAreActive)
+        if (_choicesAreActive)
         {
             return;
         }
@@ -25,11 +25,11 @@ public class DialogueText : MonoBehaviour
         if (Input.GetMouseButtonDown(0))
         {
             // Ensure script exists
-            if (script == null)
+            if (_script == null)
             {
                 return;
             }
-            if (textComponent.text == script[index])
+            if (_textComponent.text == _script[_index])
             {
                 NextLine();
             }
@@ -37,7 +37,7 @@ public class DialogueText : MonoBehaviour
             else
             {
                 StopAllCoroutines();
-                textComponent.text = script[index];
+                _textComponent.text = _script[_index];
             }
         }
     }
@@ -45,46 +45,46 @@ public class DialogueText : MonoBehaviour
     public void SetScript(string[] newScript)
     {
         // Reset text
-        index = 0;
-        script = newScript;
+        _index = 0;
+        _script = newScript;
     }
 
     public void SetText(string text)
     {
         // Set a specific text for certian instance
-        textComponent.text = text;
+        _textComponent.text = text;
     }
 
     public void SetTextComponent(TextMeshProUGUI text)
     {
         // Chamge text
-        textComponent = text;
-        textComponent.text = string.Empty;
+        _textComponent = text;
+        _textComponent.text = string.Empty;
     }
 
     public int GetIndex()
     {
         // Give index
-        return index;
+        return _index;
     }
 
     public string GetCurrentText()
     {
         // Give current displayed text
-        return textComponent.text;
+        return _textComponent.text;
     }
 
     public string[] GetScript()
     {
-        return script;
+        return _script;
     }
 
     public void StartDialogue()
     {
         // Reset text
         gameObject.SetActive(true);
-        textComponent.text = string.Empty;
-        index = 0;
+        _textComponent.text = string.Empty;
+        _index = 0;
 
         // Begin typing
         StartCoroutine(TypeLine());
@@ -93,26 +93,26 @@ public class DialogueText : MonoBehaviour
     IEnumerator TypeLine()
     {
         // Type line by each character
-        foreach (char c in script[index].ToCharArray())
+        foreach (char c in _script[_index].ToCharArray())
         {
-            textComponent.text += c;
-            yield return new WaitForSeconds(textSpeed);
+            _textComponent.text += c;
+            yield return new WaitForSeconds(_textSpeed);
         }
     }
 
     void NextLine()
     {
         // Reset to move to the next line
-        if (index < script.Length - 1)
+        if (_index < _script.Length - 1)
         {
-            index++;
-            textComponent.text = string.Empty;
+            _index++;
+            _textComponent.text = string.Empty;
             StartCoroutine(TypeLine());
         }
         // Otherwise, finish and reset
         else
         {
-            OnDialogueTextFinished?.Invoke();
+            _OnDialogueTextFinished?.Invoke();
         }
     }
 
@@ -120,9 +120,9 @@ public class DialogueText : MonoBehaviour
     {
         // Disappear and reset
         StopAllCoroutines();
-        textComponent.text = string.Empty;
+        _textComponent.text = string.Empty;
 
-        script = null;
-        index = 0;
+        _script = null;
+        _index = 0;
     }
 }

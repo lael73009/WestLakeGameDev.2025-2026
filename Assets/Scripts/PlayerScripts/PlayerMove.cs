@@ -3,13 +3,13 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody2D))]
 public class Move : MonoBehaviour
 {     
-    [SerializeField] private float moveSpeed = 5f;
-    private Rigidbody2D rigidBody;
-    private Vector2 input;
+    [SerializeField] private float _moveSpeed = 5f;
+    private Rigidbody2D _rigidBody;
+    private Vector2 _input;
 
     void Awake()
     {
-        rigidBody = GetComponent<Rigidbody2D>();
+        _rigidBody = GetComponent<Rigidbody2D>();
     }
 
     // Update is called once per frame
@@ -19,15 +19,15 @@ public class Move : MonoBehaviour
     }
 
     void FixedUpdate() {
-        rigidBody.linearVelocity = input * moveSpeed;
+        _rigidBody.linearVelocity = _input * _moveSpeed;
     }
 
     private void HandleInputs() {
         //Move based off arrow and WASD keys
-        input.x = Input.GetAxisRaw("Horizontal");
-        input.y = Input.GetAxisRaw("Vertical");
+        _input.x = Input.GetAxisRaw("Horizontal");
+        _input.y = Input.GetAxisRaw("Vertical");
 
-        input.Normalize();
+        _input.Normalize();
     }
 }
  

@@ -10,36 +10,36 @@ public class InventorySlot : MonoBehaviour,
                             IDropHandler
 {
     // Slot variables
-    private RectTransform slotRect;
-    private Image slotImage;
+    private RectTransform _slotRect;
+    private Image _slotImage;
 
     // Item variables
-    public int itemAmount;
-    private Pickupable item;
+    public int _itemAmount;
+    private Pickupable _item;
 
     // UI variables
-    private Image itemImage;
-    private Image dragImage;
-    private TextMeshProUGUI itemAmountText;
+    private Image _itemImage;
+    private Image _dragImage;
+    private TextMeshProUGUI _itemAmountText;
 
     public Pickupable GetItem()
     {
-        return item;
+        return _item;
     }
 
     public int GetItemAmount()
     {
-        return itemAmount;
+        return _itemAmount;
     }
 
     public string GetItemName()
     {
-        return item.name;
+        return _item._name;
     }
 
     public int GetMaxItemAmount()
     {
-        return item.maxAmount;
+        return _item._maxAmount;
     }
 
     public void SetItem(Pickupable newItem)
@@ -50,7 +50,7 @@ public class InventorySlot : MonoBehaviour,
 
     public void SetItemAmount(int newItemAmount)
     {
-        itemAmount = newItemAmount;
+        _itemAmount = newItemAmount;
         UpdateItemAmountDisplay();
     }
 
@@ -64,54 +64,54 @@ public class InventorySlot : MonoBehaviour,
         }
 
         // Avoid null errors
-        if (itemImage == null)
+        if (_itemImage == null)
         {
             Debug.Log("Error: Inventory slot itemImage has not been created");
             return;
         }
 
         // Set item and sprites
-        item = newItem;
-        itemAmount = newItemAmount;
+        _item = newItem;
+        _itemAmount = newItemAmount;
 
-        itemImage.sprite = item.sprite;
-        itemImage.enabled = item.sprite != null;
+        _itemImage.sprite = _item._sprite;
+        _itemImage.enabled = _item._sprite != null;
         UpdateItemAmountDisplay();
     }
 
     public void AddItemAmount(int amount)
     {
-        itemAmount += amount;
+        _itemAmount += amount;
         UpdateItemAmountDisplay();
     }
 
     public void RemoveItem()
     {
         // Avoid null errors
-        if (itemImage == null)
+        if (_itemImage == null)
         {
             Debug.Log("Error: Inventory slot itemImage has not been created");
             return;
         }
         
         // Remove item and sprites
-        item = null;
-        itemAmount = 0;
+        _item = null;
+        _itemAmount = 0;
 
-        itemImage.sprite = null;
-        itemImage.enabled = false;
+        _itemImage.sprite = null;
+        _itemImage.enabled = false;
         UpdateItemAmountDisplay();
     }
 
     public void RemoveItemAmount(int amount)
     {
-        if (amount >= itemAmount)
+        if (amount >= _itemAmount)
         {
             RemoveItem();
             return;
         }
 
-        itemAmount -= amount;
+        _itemAmount -= amount;
         UpdateItemAmountDisplay();
     }
 
@@ -119,18 +119,18 @@ public class InventorySlot : MonoBehaviour,
     public void CreateSlot(float width)
     {
         // Create slot
-        slotRect = GetComponent<RectTransform>();
+        _slotRect = GetComponent<RectTransform>();
 
-        if (slotRect == null)
+        if (_slotRect == null)
         {
-            slotRect = gameObject.AddComponent<RectTransform>();
+            _slotRect = gameObject.AddComponent<RectTransform>();
         }
 
         // Set slot size
-        slotRect.sizeDelta = new Vector2(width, width);
-        slotImage = gameObject.AddComponent<Image>();
-        slotImage.color = Color.slateGray;
-        slotImage.raycastTarget = true;
+        _slotRect.sizeDelta = new Vector2(width, width);
+        _slotImage = gameObject.AddComponent<Image>();
+        _slotImage.color = Color.slateGray;
+        _slotImage.raycastTarget = true;
 
         // Create item
         CreateItem(width);
@@ -145,7 +145,7 @@ public class InventorySlot : MonoBehaviour,
         // Create the item sprite Image
         GameObject itemObject = new GameObject("ItemSprite");
         itemObject.transform.SetParent(transform, false);
-        itemImage = itemObject.AddComponent<Image>();
+        _itemImage = itemObject.AddComponent<Image>();
 
         // Set the item location
         RectTransform itemRect = itemObject.GetComponent<RectTransform>();
@@ -158,10 +158,10 @@ public class InventorySlot : MonoBehaviour,
 
         // Format the item
         itemRect.sizeDelta = new Vector2(width * 0.8f, width * 0.8f);
-        itemImage.preserveAspect = true;
-        itemImage.raycastTarget = false;
+        _itemImage.preserveAspect = true;
+        _itemImage.raycastTarget = false;
 
-        itemImage.enabled = false;
+        _itemImage.enabled = false;
     }
 
     public void CreateItemAmountDisplay(float width)
@@ -174,7 +174,7 @@ public class InventorySlot : MonoBehaviour,
 
         amountObject.transform.SetParent(transform, false);
 
-        itemAmountText = amountObject.AddComponent<TextMeshProUGUI>();
+        _itemAmountText = amountObject.AddComponent<TextMeshProUGUI>();
 
         // Set text location
         RectTransform amountRect = amountObject.GetComponent<RectTransform>();
@@ -187,12 +187,12 @@ public class InventorySlot : MonoBehaviour,
         amountRect.sizeDelta = new Vector2(width * 0.5f, width * 0.4f);
 
         // Set text format
-        itemAmountText.fontSize = 14;
-        itemAmountText.alignment = TextAlignmentOptions.BottomRight;
-        itemAmountText.color = Color.white;
-        itemAmountText.raycastTarget = false;
+        _itemAmountText.fontSize = 14;
+        _itemAmountText.alignment = TextAlignmentOptions.BottomRight;
+        _itemAmountText.color = Color.white;
+        _itemAmountText.raycastTarget = false;
 
-        itemAmountText.text = "";
+        _itemAmountText.text = "";
     }
 
     public void OnBeginDrag(PointerEventData eventData)
@@ -200,7 +200,7 @@ public class InventorySlot : MonoBehaviour,
         Pickupable item = GetItem();
 
         // Only allow dragging if this slot contains an item
-        if (item == null || item.sprite == null)
+        if (item == null || item._sprite == null)
             return;
 
         // Create a temporary image that follows the cursor
@@ -216,10 +216,10 @@ public class InventorySlot : MonoBehaviour,
             false
         );
 
-        dragImage = dragObject.GetComponent<Image>();
-        dragImage.sprite = item.sprite;
-        dragImage.preserveAspect = true;
-        dragImage.raycastTarget = false;
+        _dragImage = dragObject.GetComponent<Image>();
+        _dragImage.sprite = item._sprite;
+        _dragImage.preserveAspect = true;
+        _dragImage.raycastTarget = false;
         dragObject.transform.SetAsLastSibling();
 
         RectTransform rect = dragObject.GetComponent<RectTransform>();
@@ -229,20 +229,20 @@ public class InventorySlot : MonoBehaviour,
 
     private void UpdateItemAmountDisplay()
     {
-        if (itemAmountText == null)
+        if (_itemAmountText == null)
             return;
 
         // Only display amounts greater than 1
-        itemAmountText.text = itemAmount > 1 ? itemAmount.ToString() : "";
+        _itemAmountText.text = _itemAmount > 1 ? _itemAmount.ToString() : "";
     }
 
     public void OnDrag(PointerEventData eventData)
     {
         // Move the item as its being dragged
-        if (dragImage == null)
+        if (_dragImage == null)
             return;
 
-        dragImage.rectTransform.position = eventData.position;
+        _dragImage.rectTransform.position = eventData.position;
     }
 
     public void OnDrop(PointerEventData eventData)
@@ -261,16 +261,16 @@ public class InventorySlot : MonoBehaviour,
             return;
         }
 
-        Inventory.Instance.MoveOrSwapItems(from, this);
+        Inventory._Instance.MoveOrSwapItems(from, this);
     }
 
     public void OnEndDrag(PointerEventData eventData)
     {
         // Release item
-        if (dragImage != null)
+        if (_dragImage != null)
         {
-            Destroy(dragImage.gameObject);
-            dragImage = null;
+            Destroy(_dragImage.gameObject);
+            _dragImage = null;
         }
     }
 }
